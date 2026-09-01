@@ -26,14 +26,35 @@ from isp_rag.query.synthesizer import synthesize
 logging.basicConfig(level=settings.log_level)
 log = logging.getLogger("isp_rag.api")
 
-BRAIN_ENABLED = True  # T12: ontologia carregada
+def brain_disponivel() -> bool:
+    """O Brain está no ar E com a ontologia carregada?
+
+    Detectado em runtime, não por flag fixa: em CI, ou numa máquina sem o Neo4j
+    subido, o sistema degrada para duas camadas em vez de falhar inteiro. Uma
+    constante hardcoded diria 'ligado' sobre um serviço inexistente.
+    """
+    try:
+        from isp_rag.brain.engine import run_cypher
+
+        return bool(run_cypher("MATCH (e:Edicao) RETURN count(e) AS n")[0]["n"])
+    except Exception:
+        return False
+
+
+# Resolvido no import para o handler de /sources e o roteamento consultarem o
+# mesmo valor; o lifespan reavalia ao subir.
+BRAIN_ENABLED = brain_disponivel()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Constrói as engines UMA vez. Por request custaria segundos."""
+    global BRAIN_ENABLED
     from isp_rag.ledger.engine import build_ledger_engine
     from isp_rag.query.router import _memory_query_engine, build_subquestion_engine
+
+    BRAIN_ENABLED = brain_disponivel()
+    app.state.brain_enabled = BRAIN_ENABLED
 
     app.state.ledger = build_ledger_engine()
     app.state.memory = _memory_query_engine()
@@ -42,7 +63,7 @@ async def lifespan(app: FastAPI):
 
         app.state.brain = build_brain_engine()
     app.state.subq = build_subquestion_engine(brain_enabled=BRAIN_ENABLED)
-    log.info("engines prontas")
+    log.info("engines prontas (brain=%s)", BRAIN_ENABLED)
     yield
 
 

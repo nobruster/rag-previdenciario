@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from isp_rag.api.main import app
+from isp_rag.query.router import RouteDecision
 
 
 @pytest.fixture(scope="module")
@@ -82,8 +83,17 @@ def _violacao_real() -> ValidationError:
 
 
 def test_violacao_de_contrato_e_erro_do_sistema(client):
-    """Um 4xx faria o cliente achar que a pergunta dele estava errada."""
-    with patch("isp_rag.api.main.synthesize", side_effect=_violacao_real()):
+    """Um 4xx faria o cliente achar que a pergunta dele estava errada.
+
+    A recuperação também é mockada: o alvo aqui é o handler de erro, e deixar
+    a busca real rodar faria o teste depender de chave de LLM válida — ele
+    quebrava em CI por um motivo que não é o que ele mede.
+    """
+    with (
+        patch("isp_rag.api.main.synthesize", side_effect=_violacao_real()),
+        patch("isp_rag.api.main._nodes_do_memory", return_value=[]),
+        patch("isp_rag.api.main.route", return_value=RouteDecision(engine="memory")),
+    ):
         r = client.post("/query", json={"question": "qual o prazo do DIPR?"})
     assert r.status_code == 500
     assert r.json()["error"] == "contract_violation"
