@@ -48,3 +48,7 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+# Testes que gastam token da OpenAI ficam fora por padrão.
+# Rode-os com: pytest -m llm
+markers = ["llm: exercita a API da OpenAI (custo real)"]
+addopts = "-m 'not llm'"
