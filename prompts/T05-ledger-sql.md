@@ -41,7 +41,9 @@ R6 — edicao_ano é a chave temporal. O prompt de contexto precisa deixar isso
   O contexto de tabela é o que decide o acerto. Passe table_context por tabela,
   complementando os COMMENT ON do banco. O modelo precisa saber:
 
-    - conceito é CHAR(1) de 'A' a 'E', onde A é o melhor
+    - conceito final é CHAR(1) de 'A' a 'D', onde A é o melhor. NÃO existe
+      conceito 'E' (verificado nas edições 2022, 2024 e 2025). Já o indicador
+      parcial em isp_componente usa A/B/C — escalas diferentes, nunca compare
     - edicao_ano é a chave temporal; comparar edições = filtrar/agrupar por ela
     - regime_metodologico separa 'tercil-anual' (2017–2024) de 'corte-historico'
       (2025+). Conceitos de regimes diferentes NÃO são comparáveis — a régua
@@ -156,5 +158,5 @@ pytest tests/test_ledger_engine.py -v
 - [ ] `get_sql()` devolve o SQL gerado (T11 depende disso)
 - [ ] Testes assertam sobre **resultado**, nunca sobre string de SQL
 - [ ] `SQLSafetyError` bloqueia qualquer coisa que não seja leitura
-- [ ] Contexto de tabela explica conceito A–E e `edicao_ano` como chave temporal
+- [ ] Contexto explica conceito final A–D, parcial A/B/C, e `edicao_ano` como chave temporal
 - [ ] Nenhum `import openai` (R5)

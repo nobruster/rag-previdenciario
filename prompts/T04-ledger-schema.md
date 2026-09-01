@@ -153,9 +153,9 @@ Portanto, a tabela `edicao` tem duas colunas a mais (já no schema acima):
   Popule a tabela `regime` primeiro (seed, não vem de planilha):
 
     ('tercil-anual', 'Conceito por tercil anual — nota relativa à distribuição
-      do ano', '<texto da ressalva>', '{A,B,C,D,E}')
+      do ano', '<texto da ressalva>', '{A,B,C,D}')
     ('corte-historico', 'Conceito por cortes fixos de densidade — nota
-      absoluta; +3 indicadores', '<texto da ressalva>', '{A,B,C,D,E}')
+      absoluta; +3 indicadores', '<texto da ressalva>', '{A,B,C,D}')
 
   Depois, na carga de cada edição:
     2017..2024 → regime_metodologico = 'tercil-anual'

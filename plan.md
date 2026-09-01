@@ -229,7 +229,7 @@ CREATE TABLE isp_resultado (
     cnpj            VARCHAR(14) REFERENCES ente,
     edicao_ano      SMALLINT REFERENCES edicao,
     nota_final      NUMERIC(5,4),
-    conceito        CHAR(1),           -- A..E
+    conceito        CHAR(1),           -- A..D (verificado: não existe E)
     PRIMARY KEY (cnpj, edicao_ano)
 );
 
@@ -267,16 +267,17 @@ os obtidos nos índices dos anos anteriores"*.
 - **Indicador parcial** → `A`, `B` ou `C`. É aqui que opera o tercil, e é isto
   que a reformulação mudou. *"A cada indicador foi atribuída uma nota ou
   classificação 'A', 'B' ou 'C'."*
-- **Classificação final do ente** → `A` a `E`, cinco níveis. Confirmado pelo
+- **Classificação final do ente** → `A` a `D`, quatro níveis. Verificado nas
+  planilhas de 2022, 2024 e 2025: nenhum ente recebeu `E`. Casa com o
   mapeamento de perfil atuarial (Portaria SPREV 14.762/2020): *"Perfil Atuarial
   I: os RPPS com classificação D no ISP-RPPS; II — classificação C; III —
-  classificação B; IV — classificação A"*, mais a classe `E`.
+  classificação B; IV — classificação A"* — quatro perfis, quatro conceitos.
 
 Confundir as duas é erro fácil — "tercil" (3 grupos) parece contradizer uma
 escala de 5 letras, mas operam em níveis diferentes. No schema:
 `isp_componente.nota_componente` guarda A/B/C; `isp_resultado.conceito` guarda
-A–E. A auditoria de setembro/2026 levantou isso como suposta contradição; a
-fonte primária confirma que não é.
+A–D. A auditoria levantou como suposta contradição "tercil (3 grupos) vs.
+escala de letras"; a fonte primária mostra que são níveis distintos.
 
 O que mudou em 2025, e por que importa para o RAG:
 
@@ -336,6 +337,42 @@ o SQL puxa a série 2017–2025 inteira, a resposta narra uma evolução, e a r�
 muda no meio sem que ninguém tenha pedido uma comparação. Uma defesa acoplada à
 *categoria da pergunta* cobre as perguntas que o gold set conhece; uma acoplada
 ao *resultset* cobre todas.
+
+---
+
+### 7.2 Recálculo de verificação — o que é honestamente verificável
+
+A spec §2.4 promete recalcular o indicador e comparar com o publicado. Auditoria
+e teste empírico (setembro/2026) delimitaram o que isso alcança.
+
+**Verificado rodando contra a planilha oficial de 2025:** o recálculo do
+indicador `COBERTURA` a partir de `PONTUAÇÃO` + `LIMITE INFERIOR` +
+`LIMITE SUPERIOR` reproduz a letra publicada em **1703 de 1704 entes — 99,94%**.
+A única divergência é um ente cuja pontuação é *exatamente igual* ao limite
+superior (LAPA-PR), fronteira que o Ministério resolveu a favor de `A`.
+
+Isso confirma a regra do relatório: `pontuação < limite inferior → C`;
+`entre os limites → B`; `≥ limite superior → A`.
+
+| Nível | Status | Base |
+|---|---|---|
+| Letra do indicador parcial | **reproduzível** | 7 das 10 abas trazem `PONTUAÇÃO`, `LIMITE INFERIOR`, `LIMITE SUPERIOR` e `CLASSIFICAÇÃO` por ente: REGULARIDADE, ENVIOS, ACUMULAÇÃO, SUFICIÊNCIA, COBERTURA, SUSTENTABILIDADE, COMPROMETIMENTO |
+| Letra de GESTÃO, REFORMA | **não reproduzível** | trazem classificação sem limites — regra categórica própria (ex.: nível de certificação Pró-Gestão) |
+| Soma da dimensão | **reproduzível** | aba `Combinação de Resultados`, lookup publicada: `AAA` → 1.5/1.5/1.5 → 4.5 |
+| Dimensão atuarial 2025 | **asserção testável** | "melhor nota entre Sustentabilidade e Comprometimento" está no relatório em prosa; a carga modela como dado e a verificação confere contra o publicado |
+| Conceito final A–D | **reproduzível** | 4º bloco da `Combinação de Resultados` mapeia as 3 classificações → SITUAÇÃO PREVIDENCIÁRIA |
+
+**Reexecutar, não derivar.** Como os limites vêm publicados, o que o sistema faz
+é *reexecutar a régua do Ministério*, não derivá-la de primeiros princípios.
+Isso detecta erro de transcrição e inconsistência interna da planilha; **não**
+detecta erro na metodologia oficial. A promessa honesta é "reexecuta a memória
+de cálculo publicada e reporta divergências" — e onde não dá, o status é
+`nao_reproduzivel`, não um número inventado.
+
+**Escala de classificação: A–D, não A–E.** Verificado nas edições 2022, 2024 e
+2025: a coluna final assume apenas A, B, C e D (2025: A=32, B=459, C=756,
+D=886). Nenhum ente recebeu `E` em nenhuma das três. O indicador parcial usa
+A/B/C. São duas escalas distintas e nunca devem ser comparadas entre si.
 
 ---
 

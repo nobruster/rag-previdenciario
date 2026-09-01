@@ -48,7 +48,7 @@ Servidor MCP sobre stdio, com 4 tools.
 
   TOOL 2: nota_do_ente
     Descrição:
-      "Consulta direta da nota e do conceito (A a E) de um RPPS específico no
+      "Consulta direta da nota e do conceito (A a D) de um RPPS específico no
        ISP, por CNPJ ou nome do município, em uma edição. Mais rápido e preciso
        que consultar_isp quando você já sabe exatamente qual ente e qual ano
        quer. Retorna também a memória de cálculo por componente."

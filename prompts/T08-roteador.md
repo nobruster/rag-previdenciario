@@ -34,7 +34,7 @@ R5 — Selector usa llama_llm(). Sem import de openai.
 
   Descrição da tool ledger:
     "Dados numéricos do Índice de Situação Previdenciária (ISP) por ente
-     federativo e por edição. Use para: notas e conceitos (A a E) de um RPPS,
+     federativo e por edição. Use para: notas e conceitos (A a D) de um RPPS,
      rankings, médias, contagens, comparação numérica entre entes ou entre
      edições, memória de cálculo (valor e peso de cada indicador).
      Exemplos: 'qual a nota do RPPS de Campinas em 2025', 'quantos entes
