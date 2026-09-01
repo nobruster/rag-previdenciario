@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "isp-rag"
+version = "0.1.0"
+description = "RAG multi-fonte sobre a previdência pública brasileira (ISP-RPPS)"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "llama-index-core>=0.11",
+    "llama-index-llms-openai",
+    "llama-index-embeddings-openai",
+    "llama-index-vector-stores-qdrant",
+    "llama-index-graph-stores-neo4j",
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic>=2.7",
+    "pydantic-settings",
+    "psycopg[binary]",
+    "sqlalchemy>=2",
+    "qdrant-client",
+    "neo4j",
+    "httpx",
+    "openpyxl",
+    "pypdf",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
