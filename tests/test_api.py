@@ -10,6 +10,24 @@ from isp_rag.api.main import app
 from isp_rag.query.router import RouteDecision
 
 
+def _dados_carregados() -> bool:
+    """Os testes de conteúdo exigem Ledger e Memory populados.
+
+    Em CI os serviços sobem VAZIOS: sem isso, testes de dado falhariam por
+    ausência de carga, não por defeito de código.
+    """
+    try:
+        from isp_rag.ledger.engine import run_sql
+        from isp_rag.memory.indexer import contar_pontos
+
+        return bool(run_sql("SELECT 1 FROM isp_resultado LIMIT 1")) and contar_pontos() > 0
+    except Exception:
+        return False
+
+
+precisa_dados = pytest.mark.skipif(not _dados_carregados(), reason="Ledger/Memory sem dados")
+
+
 @pytest.fixture(scope="module")
 def client():
     with TestClient(app) as c:
@@ -32,6 +50,7 @@ def test_engine_inexistente_e_422(client):
 # ---------------------------------------------------------------------------
 # Health e sources
 # ---------------------------------------------------------------------------
+@precisa_dados
 def test_health_checa_os_tres_servicos(client):
     r = client.get("/health")
     assert r.status_code == 200
@@ -45,6 +64,7 @@ def test_health_reporta_neo4j(client):
     assert estado in ("ok", "disabled"), estado
 
 
+@precisa_dados
 def test_sources_ledger_lista_edicoes_com_regime(client):
     dados = client.get("/sources/ledger").json()
     assert dados["engine"] == "ledger"
@@ -54,6 +74,7 @@ def test_sources_ledger_lista_edicoes_com_regime(client):
     assert e["regime"] in ("tercil-anual", "corte-historico")
 
 
+@precisa_dados
 def test_sources_memory_reporta_situacao(client):
     dados = client.get("/sources/memory").json()
     assert dados["total_chunks"] > 600
@@ -146,11 +167,13 @@ def test_toda_resposta_nao_recusada_tem_fonte(client):
 # ---------------------------------------------------------------------------
 # Cobertura — o que o sistema pode responder
 # ---------------------------------------------------------------------------
+@precisa_dados
 def test_cobertura_termo_ausente(client):
     d = client.get("/cobertura", params={"termo": "Mongólia"}).json()
     assert d["coberto"] is False and d["n_chunks"] == 0
 
 
+@precisa_dados
 def test_cobertura_termo_presente(client):
     d = client.get("/cobertura", params={"termo": "CRP"}).json()
     assert d["coberto"] is True and d["artigos"]

@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 import psycopg
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from llama_index.core.schema import NodeWithScore, TextNode
 from pydantic import ValidationError
@@ -48,22 +48,46 @@ BRAIN_ENABLED = brain_disponivel()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Constrói as engines UMA vez. Por request custaria segundos."""
+    """Constrói as engines UMA vez. Por request custaria segundos.
+
+    Cada engine é construída isoladamente: um serviço fora do ar (ou sem os
+    dados carregados) desabilita AQUELA camada, sem derrubar a aplicação. Sem
+    isso, um Postgres vazio impede até o /health de responder — justamente o
+    endpoint que existe para diagnosticar o problema.
+    """
     global BRAIN_ENABLED
+
+    def _tentar(nome: str, construtor):
+        try:
+            return construtor()
+        except Exception as exc:
+            log.warning("engine '%s' indisponível: %s", nome, exc)
+            return None
+
     from isp_rag.ledger.engine import build_ledger_engine
     from isp_rag.query.router import _memory_query_engine, build_subquestion_engine
 
     BRAIN_ENABLED = brain_disponivel()
     app.state.brain_enabled = BRAIN_ENABLED
 
-    app.state.ledger = build_ledger_engine()
-    app.state.memory = _memory_query_engine()
-    if BRAIN_ENABLED:
-        from isp_rag.brain.engine import build_brain_engine
-
-        app.state.brain = build_brain_engine()
-    app.state.subq = build_subquestion_engine(brain_enabled=BRAIN_ENABLED)
-    log.info("engines prontas (brain=%s)", BRAIN_ENABLED)
+    app.state.ledger = _tentar("ledger", build_ledger_engine)
+    app.state.memory = _tentar("memory", _memory_query_engine)
+    app.state.brain = (
+        _tentar("brain", lambda: __import__(
+            "isp_rag.brain.engine", fromlist=["build_brain_engine"]
+        ).build_brain_engine())
+        if BRAIN_ENABLED
+        else None
+    )
+    app.state.subq = _tentar(
+        "subquestion", lambda: build_subquestion_engine(brain_enabled=BRAIN_ENABLED)
+    )
+    log.info(
+        "engines prontas (ledger=%s memory=%s brain=%s)",
+        app.state.ledger is not None,
+        app.state.memory is not None,
+        BRAIN_ENABLED,
+    )
     yield
 
 
@@ -126,6 +150,18 @@ async def query(req: QueryRequest, request: Request) -> QueryResponse:
     forcadas = req.engines
     multi = forcadas is None and needs_decomposition(req.question)
 
+    engine_ausente = (
+        (multi and request.app.state.subq is None)
+        or (not multi and request.app.state.ledger is None and request.app.state.memory is None)
+    )
+    if engine_ausente:
+        # Serviço indisponível é 503, não 500: o defeito é de infraestrutura,
+        # e o cliente pode tentar de novo depois.
+        raise HTTPException(
+            status_code=503,
+            detail="nenhuma engine disponível — verifique /health",
+        )
+
     if multi:
         resposta = request.app.state.subq.query(req.question)
         engines = ["ledger", "memory"] + (["brain"] if BRAIN_ENABLED else [])
@@ -138,6 +174,10 @@ async def query(req: QueryRequest, request: Request) -> QueryResponse:
             nodes = [NodeWithScore(node=TextNode(text=str(resposta), metadata={}), score=1.0)]
     else:
         alvo = forcadas[0] if forcadas else (route(req.question).engine or "memory")
+        if alvo == "ledger" and request.app.state.ledger is None:
+            alvo = "memory"
+        elif alvo in ("memory", "brain") and request.app.state.memory is None:
+            alvo = "ledger"
         engines = [alvo]
         if alvo == "ledger":
             nodes, ressalva = _nodes_do_ledger(request.app.state.ledger.query(req.question))
