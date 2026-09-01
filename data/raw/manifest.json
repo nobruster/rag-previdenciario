@@ -30,5 +30,69 @@
     "size_bytes": 1549392,
     "sha256": "20099f7c3d52b23f89b932b61ca4077732e213e8d0fd49fae951bea8c2b1bebf",
     "content_type": "application/pdf"
+  },
+  {
+    "url": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/legislacao-dos-rpps/portarias/portarias_todas/12PortariaMTPn1.467de02jun2022Atualizadaat29dez2025.pdf",
+    "filename": "12PortariaMTPn1.467de02jun2022Atualizadaat29dez2025.pdf",
+    "fetched_at": "2026-09-01T18:45:57.003886Z",
+    "size_bytes": 2346015,
+    "sha256": "f34cac9e97ac57714a211e97beab766e6e1f09cae3bf97661453489b5445c58e",
+    "content_type": "application/pdf"
+  },
+  {
+    "url": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/legislacao-dos-rpps/portarias/portarias_todas/portaria-mtp-no-1-467-de-02-de-junho-de-2022.pdf",
+    "filename": "portaria-mtp-no-1-467-de-02-de-junho-de-2022.pdf",
+    "fetched_at": "2026-09-01T18:45:58.282771Z",
+    "size_bytes": 2749850,
+    "sha256": "c54a063497d3d8b1035a9eaec9d2030c8fa0190c9412f88e9c8678d3f5db5ef4",
+    "content_type": "application/pdf"
+  },
+  {
+    "url": "https://www.planalto.gov.br/ccivil_03/leis/l9717.htm",
+    "filename": "l9717.htm",
+    "fetched_at": "2026-09-01T18:45:58.843643Z",
+    "size_bytes": 68251,
+    "sha256": "9a583ed469d7e3d5d451ff3e8091fac0e337029172443e02f98b7dc69c4843ba",
+    "content_type": "text/html"
+  },
+  {
+    "url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/lei/l10.887.htm",
+    "filename": "l10.887.htm",
+    "fetched_at": "2026-09-01T18:45:59.416401Z",
+    "size_bytes": 117962,
+    "sha256": "eda6256ced0fb09d7f6dea74c5fd1842a1b76e0855fcfc0715024488f981e119",
+    "content_type": "text/html"
+  },
+  {
+    "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc20.htm",
+    "filename": "emc20.htm",
+    "fetched_at": "2026-09-01T18:45:59.900263Z",
+    "size_bytes": 59937,
+    "sha256": "2e55877b46372d65de48a122f85921d8aefe12ecbc5e2bf34c2d8f36a904596f",
+    "content_type": "text/html"
+  },
+  {
+    "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc41.htm",
+    "filename": "emc41.htm",
+    "fetched_at": "2026-09-01T18:46:00.370717Z",
+    "size_bytes": 33057,
+    "sha256": "ec1ec2658e70a39886979f261710442261333f0deada9c960cfedadb0594215b",
+    "content_type": "text/html"
+  },
+  {
+    "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc47.htm",
+    "filename": "emc47.htm",
+    "fetched_at": "2026-09-01T18:46:00.792107Z",
+    "size_bytes": 15560,
+    "sha256": "86acbfa5ee187315ed1b4bff23ba638d8bcb722b0ca33311c04b9f8252c647f9",
+    "content_type": "text/html"
+  },
+  {
+    "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc103.htm",
+    "filename": "emc103.htm",
+    "fetched_at": "2026-09-01T18:46:01.470545Z",
+    "size_bytes": 171194,
+    "sha256": "d6c2625de3864b9341070160cff8f341b88cb5edb16f24ed0f2b720fbc303d90",
+    "content_type": "text/html"
   }
 ]

@@ -3,7 +3,6 @@
   "_pagina_oficial": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria",
   "_nota_user_agent": "O portal gov.br responde 403 a User-Agent padrão de cliente HTTP. O fetcher DEVE enviar um User-Agent de navegador; sem isso todo download falha.",
   "_nota_metodologia": "A edição 2025 teve reformulação de metodologia e, segundo o próprio Ministério, seus resultados NÃO são comparáveis aos das edições anteriores. Isso é material da pergunta de demonstração (spec 3.4), não um defeito dos dados.",
-
   "edicoes": {
     "2025": {
       "resultado_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/resultado-final-isp-2025-_-publicado-em-04_12_2025-1.xlsx",
@@ -47,16 +46,17 @@
       "portaria_sprev_10_2017": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/arquivos/2017/portaria-sprev-mf-no-10-2017-de-08-de-setembro-de-2017.pdf"
     }
   },
-
   "legislacao": {
-    "_status": "TODO — não verificadas nesta rodada. Ver prompts/T03-coleta.md.",
-    "_onde_buscar": "planalto.gov.br (preferir HTML estruturado ao PDF, conforme spec 9) e in.gov.br",
-    "portaria_mtp_1467_2022": null,
-    "lei_9717_1998": null,
-    "lei_10887_2004": null,
-    "ec_20_1998": null,
-    "ec_41_2003": null,
-    "ec_47_2005": null,
-    "ec_103_2019": null
+    "_status": "URLs verificadas em 2026-09-01 por requisição real (status, content-type e conteúdo).",
+    "_nota_formato": "Leis e ECs em HTML do Planalto — a spec §9 recomenda preferir HTML estruturado a PDF, e a extração é muito melhor. A Portaria só existe em PDF.",
+    "_nota_vigencia": "A Portaria 1.467/2022 foi ALTERADA por normas posteriores (entre elas a Portaria MPS 1.180/2024). A URL abaixo é o texto COMPILADO até 29/12/2025 — 249 páginas, 285 artigos. Usar o texto original de 02/06/2022 faria o Memory responder com redação superada, violando o filtro de vigência da spec §5.2.",
+    "portaria_mtp_1467_2022": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/legislacao-dos-rpps/portarias/portarias_todas/12PortariaMTPn1.467de02jun2022Atualizadaat29dez2025.pdf",
+    "portaria_mtp_1467_2022_original": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/legislacao-dos-rpps/portarias/portarias_todas/portaria-mtp-no-1-467-de-02-de-junho-de-2022.pdf",
+    "lei_9717_1998": "https://www.planalto.gov.br/ccivil_03/leis/l9717.htm",
+    "lei_10887_2004": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/lei/l10.887.htm",
+    "ec_20_1998": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc20.htm",
+    "ec_41_2003": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc41.htm",
+    "ec_47_2005": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc47.htm",
+    "ec_103_2019": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc103.htm"
   }
 }
