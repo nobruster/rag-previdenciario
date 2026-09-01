@@ -7,8 +7,8 @@ Rode com `python -m eval.run_all --deterministic-only`.
 
 | Métrica | Valor | Base |
 |---|---|---|
-| Roteamento | **0,96** | 25/26 avaliados · 14 pulados |
-| Text-to-SQL (execution match) | **0,78–0,89** | 7–8/9 · 2 pulados |
+| Roteamento | **0,96** | 25/26 avaliados · 14 pulados (com Brain ativo) |
+| Text-to-SQL (execution match) | **0,89** | 8/9 · 2 pulados |
 | Recuperação | **1,00** | 4/4 · MRR 0,88 |
 | Geração — fidelidade | **2,0** | amostra de 6 |
 | Geração — precisão da citação | **1,17** | amostra de 6 |
@@ -28,6 +28,7 @@ O Text-to-SQL varia entre rodadas porque o LLM não é determinístico mesmo com
 | baseline | 0,74 | 0,67 | primeira rodada |
 | gold set corrigido | 0,96 | 0,33 | itens de recusa saíram da métrica de rota; descrições das tools reescritas |
 | contexto no `COMMENT ON` | 0,96 | **0,78–0,89** | formatos literais movidos para o comentário da view |
+| T12 — Brain ativo | 0,96 | 0,89 | grafo entra no roteamento sem regressão |
 
 ## Três defeitos que a avaliação encontrou
 

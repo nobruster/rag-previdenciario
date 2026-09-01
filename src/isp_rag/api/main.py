@@ -26,7 +26,7 @@ from isp_rag.query.synthesizer import synthesize
 logging.basicConfig(level=settings.log_level)
 log = logging.getLogger("isp_rag.api")
 
-BRAIN_ENABLED = False  # ligado na T12
+BRAIN_ENABLED = True  # T12: ontologia carregada
 
 
 @asynccontextmanager
@@ -37,6 +37,10 @@ async def lifespan(app: FastAPI):
 
     app.state.ledger = build_ledger_engine()
     app.state.memory = _memory_query_engine()
+    if BRAIN_ENABLED:
+        from isp_rag.brain.engine import build_brain_engine
+
+        app.state.brain = build_brain_engine()
     app.state.subq = build_subquestion_engine(brain_enabled=BRAIN_ENABLED)
     log.info("engines prontas")
     yield
@@ -116,6 +120,14 @@ async def query(req: QueryRequest, request: Request) -> QueryResponse:
         engines = [alvo]
         if alvo == "ledger":
             nodes, ressalva = _nodes_do_ledger(request.app.state.ledger.query(req.question))
+        elif alvo == "brain":
+            resposta = request.app.state.brain.query(req.question)
+            nodes = list(getattr(resposta, "source_nodes", []) or []) or [
+                NodeWithScore(
+                    node=TextNode(text=str(resposta), metadata={"ref": "Brain — grafo do ISP"}),
+                    score=1.0,
+                )
+            ]
         else:
             nodes = _nodes_do_memory(req.question, req.reference_date)
 
@@ -220,7 +232,19 @@ async def sources(engine: EngineName) -> dict:
             "situacao": por_situacao,
         }
 
-    return {"engine": "brain", "status": "disabled", "detail": "habilitado na T12"}
+    if not BRAIN_ENABLED:
+        return {"engine": "brain", "status": "disabled"}
+
+    from isp_rag.brain.engine import run_cypher
+
+    nos = run_cypher("MATCH (n) RETURN labels(n)[0] AS label, count(*) AS n ORDER BY label")
+    arestas = run_cypher("MATCH ()-[r]->() RETURN type(r) AS tipo, count(*) AS n ORDER BY tipo")
+    return {
+        "engine": "brain",
+        "status": "ok",
+        "nos": {r["label"]: r["n"] for r in nos if r["label"]},
+        "arestas": {r["tipo"]: r["n"] for r in arestas},
+    }
 
 
 @app.get("/cobertura")

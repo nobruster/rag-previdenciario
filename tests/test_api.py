@@ -38,9 +38,10 @@ def test_health_checa_os_tres_servicos(client):
     assert set(servicos) == {"postgres", "qdrant", "neo4j"}
 
 
-def test_health_reporta_neo4j_desabilitado(client):
-    """Brain entra na T12 — 'disabled' é diferente de 'erro'."""
-    assert client.get("/health").json()["services"]["neo4j"] == "disabled"
+def test_health_reporta_neo4j(client):
+    """Depois da T12 o Brain está ativo; antes dela, 'disabled' — nunca 'erro'."""
+    estado = client.get("/health").json()["services"]["neo4j"]
+    assert estado in ("ok", "disabled"), estado
 
 
 def test_sources_ledger_lista_edicoes_com_regime(client):
@@ -58,8 +59,12 @@ def test_sources_memory_reporta_situacao(client):
     assert "vigente" in dados["situacao"]
 
 
-def test_sources_brain_desabilitado(client):
-    assert client.get("/sources/brain").json()["status"] == "disabled"
+def test_sources_brain(client):
+    dados = client.get("/sources/brain").json()
+    assert dados["status"] in ("ok", "disabled")
+    if dados["status"] == "ok":
+        assert dados["nos"]["Criterio"] == 3
+        assert dados["nos"]["Indicador"] == 9
 
 
 # ---------------------------------------------------------------------------
