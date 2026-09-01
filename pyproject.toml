@@ -26,6 +26,7 @@ dependencies = [
     "httpx",
     "openpyxl",
     "pypdf",
+    "mcp",
 ]
 
 [project.optional-dependencies]

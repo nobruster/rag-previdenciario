@@ -43,3 +43,34 @@ Todo arquivo entra no sistema por download automatizado a partir da URL pública
 ## Documentação
 
 📄 **[Especificação completa do projeto](docs/projeto-isp-rag.md)** — arquitetura, ingestão, chunking, ontologia, camada de avaliação, fases, riscos e custos.
+
+## Uso como ferramenta de agente (MCP)
+
+O sistema se expõe como servidor MCP, com cinco tools. Registre no seu cliente:
+
+```json
+{
+  "mcpServers": {
+    "isp-rag": {
+      "command": "python",
+      "args": ["-m", "isp_rag.mcp.server"],
+      "cwd": "/caminho/absoluto/para/rag-previdenciario",
+      "env": { "PYTHONPATH": "src" }
+    }
+  }
+}
+```
+
+Use o caminho **absoluto** do projeto em `cwd`. Antes de registrar, o `.env`
+precisa estar preenchido e os serviços do Compose no ar (`docker compose up -d`).
+
+| Tool | Para quê |
+|---|---|
+| `consultar_isp` | Pergunta aberta, cruzando as três camadas. Recusa quando não há base. |
+| `nota_do_ente` | Conceito de um RPPS e a memória de cálculo, por CNPJ ou município. |
+| `buscar_norma` | Dispositivos do corpus normativo, só vigentes por padrão. |
+| `listar_edicoes` | O que está carregado, com o regime metodológico de cada edição. |
+| `verificar_cobertura` | Se um assunto está no corpus — distingue recusa legítima de lacuna. |
+
+Toda tool retorna as fontes citadas: um agente que recebe afirmação sem fonte
+propaga o problema com menos supervisão que um usuário lendo a resposta.
