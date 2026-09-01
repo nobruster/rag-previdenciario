@@ -126,3 +126,16 @@ def test_toda_resposta_nao_recusada_tem_fonte(client):
     for q in ["Quantos entes tiveram conceito A em 2025?", "o que estabelece o art. 241?"]:
         d = client.post("/query", json={"question": q}).json()
         assert d["refused"] or d["sources"], f"resposta sem fonte para: {q}"
+
+
+# ---------------------------------------------------------------------------
+# Cobertura — o que o sistema pode responder
+# ---------------------------------------------------------------------------
+def test_cobertura_termo_ausente(client):
+    d = client.get("/cobertura", params={"termo": "Mongólia"}).json()
+    assert d["coberto"] is False and d["n_chunks"] == 0
+
+
+def test_cobertura_termo_presente(client):
+    d = client.get("/cobertura", params={"termo": "CRP"}).json()
+    assert d["coberto"] is True and d["artigos"]

@@ -223,6 +223,24 @@ async def sources(engine: EngineName) -> dict:
     return {"engine": "brain", "status": "disabled", "detail": "habilitado na T12"}
 
 
+@app.get("/cobertura")
+async def cobertura(termo: str) -> dict:
+    """O corpus cobre este assunto?
+
+    Serve para distinguir, antes de perguntar, o que o sistema pode responder
+    do que ele vai recusar por ausência de base. Ver isp_rag.memory.cobertura.
+    """
+    from isp_rag.memory.cobertura import cobertura_de
+
+    c = cobertura_de(termo)
+    return {
+        "termo": c.termo,
+        "n_chunks": c.n_chunks,
+        "coberto": c.coberto,
+        "artigos": c.artigos[:20],
+    }
+
+
 @app.exception_handler(ValidationError)
 async def contrato_violado(request: Request, exc: ValidationError) -> JSONResponse:
     """R2 violada em runtime é bug do sistema, não erro do cliente."""

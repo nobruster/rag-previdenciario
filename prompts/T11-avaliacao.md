@@ -73,6 +73,32 @@ R4 — O gold set é escrito MANUALMENTE a partir dos dados reais já carregados
                            Ex.: "qual a alíquota do INSS do RGPS?" (é RGPS, não
                            RPPS), "qual a nota do RPPS de Lisboa?"
 
+### 1b. Valide o gold set contra a COBERTURA do corpus (obrigatório)
+
+Antes de fixar as perguntas, rode cada uma por
+`isp_rag.memory.cobertura.diagnosticar_recusa()`. Ele classifica em três:
+
+  coberto         — o corpus tem o assunto; uma recusa aqui É falha de qualidade
+  cobertura_rasa  — o termo aparece em ≤2 chunks; recusa é defensável
+  fora_do_corpus  — termo ausente; recusa é o comportamento CORRETO
+
+Regra para montar o gold set:
+
+  - `should_refuse=false` exige veredito "coberto". Se der "cobertura_rasa" ou
+    "fora_do_corpus", a pergunta está medindo a BASE, não o sistema — troque-a
+    ou mova-a para `sem_resposta`.
+  - `sem_resposta` exige veredito "fora_do_corpus" ou "cobertura_rasa".
+
+Grave o veredito no próprio item, como `"cobertura"`, para o runner distinguir
+recusa legítima de falha de recuperação ao computar a métrica.
+
+CASO REAL que motivou isto: "qual o prazo para envio do DIPR?" parece uma
+pergunta de exigência normativa perfeita — e o sistema recusa. Investigado: o
+termo aparece em 2 chunks de 714, e nenhum enuncia o prazo, que é regulado em
+norma fora do corpus. A recusa está CORRETA. Sem essa checagem, a pergunta
+entraria como `exigencia_normativa` e contaria como erro de recuperação,
+puxando a métrica para baixo por um defeito que não existe.
+
   IMPORTANTE: escreva as perguntas a partir dos dados REAIS já no banco. Consulte
   o Postgres para pegar municípios e notas que existem. Uma pergunta sobre um
   ente que não está na base não mede o sistema — mede a base.
@@ -127,6 +153,15 @@ R4 — O gold set é escrito MANUALMENTE a partir dos dados reais já carregados
   Recall@k (k=1,3,5), MRR, e a pergunta direta: "o dispositivo correto apareceu
   no top-5?". Usa expected_source_ref.
   Determinística, ZERO custo de LLM (só embedding da pergunta).
+
+  SEPARE por cobertura ao reportar. Um item cujo veredito é "fora_do_corpus"
+  ou "cobertura_rasa" NÃO entra no denominador do recall — não se mede
+  recuperação de algo que não está indexado. Reporte à parte:
+
+    RECUPERAÇÃO  recall@5 0.91 (29/32)   [8 fora do denominador: sem cobertura]
+
+  Misturar os dois produz uma métrica que piora quando o corpus cresce com
+  lacunas, e não distingue "o retriever errou" de "o documento não existe".
 
 ### 5. eval/runners/generation.py — LLM-as-judge
 
@@ -213,6 +248,9 @@ python -m eval.run_all --sample 5
 ## Aceite
 
 - [ ] 40 perguntas, 8 por categoria, escritas manualmente sobre dados reais (R4)
+- [ ] Cada pergunta validada por `diagnosticar_recusa()`, com o veredito gravado
+      no item — `should_refuse=false` só onde o corpus cobre o assunto
+- [ ] Recall calculado só sobre itens com cobertura; os demais reportados à parte
 - [ ] `sql_match` compara **resultsets**, nunca strings de SQL
 - [ ] Runners determinísticos rodam sem custo de LLM
 - [ ] Judge com rubrica explícita 0–2 e `--sample`
