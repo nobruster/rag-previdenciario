@@ -101,7 +101,22 @@ Não invente um prompt "melhorado" que suavize estas regras. A dureza é o produ
       """Normaliza (lower, sem acento, sem pontuação) e compara com
       REFUSAL_PHRASE. Tolerante a pequenas variações do modelo."""
 
-  def synthesize(question, nodes, engines_used, sub_questions=None) -> QueryResponse:
+  def synthesize(question, nodes, engines_used, sub_questions=None,
+                 ressalva: str | None = None) -> QueryResponse:
+      """
+      `ressalva` vem de checar_regimes() (T05) — checagem DETERMINÍSTICA, sem
+      LLM, sobre os anos presentes no resultset. Se não-None, build_context()
+      a injeta no topo do contexto como fonte obrigatória:
+
+        [FONTE 0 | edicao, regimes metodológicos | RESSALVA OBRIGATÓRIA]
+        {ressalva}
+
+      Assim a informação SEMPRE está no contexto quando é devida, e a regra 5
+      do prompt tem o que citar. Sem isso a defesa seria o produto de duas
+      probabilidades (o LLM do SQL lembrar de trazer o regime × o da síntese
+      lembrar de ressalvar) — e, se o SQL não trouxe, a síntese é logicamente
+      incapaz de ressalvar. Ver plan.md §7.1.
+      """
       """
       1. Se nodes vazio → retorna QueryResponse com REFUSAL_PHRASE,
          sources=[], refused=True. NÃO chama o LLM (economia e determinismo).
@@ -160,4 +175,6 @@ pytest tests/test_synthesizer.py -v
 - [ ] Contexto formatado com fontes identificadas
 - [ ] Premissa falsa é corrigida, não respondida
 - [ ] Bug que zeraria `sources` vira recusa, nunca resposta sem fonte
-- [ ] As 4 regras do prompt preservadas na íntegra
+- [ ] As **5** regras do prompt preservadas na íntegra
+- [ ] Ressalva de comparabilidade **injetada por código** (`checar_regimes` da
+      T05), não confiada ao LLM — a regra 5 é reforço, não a defesa

@@ -1,6 +1,6 @@
 # T11 — Gold set e métricas
 
-**Depende de:** T10 · **Paralelo com:** T12 · **Saída:** o sistema deixa de "funcionar no demo" e passa a ser medido
+**Depende de:** T08 (determinísticos) e T09 (judge) · **Paralelo com:** T12 · **Saída:** o sistema deixa de "funcionar no demo" e passa a ser medido
 
 ## Contexto
 

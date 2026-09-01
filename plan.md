@@ -63,8 +63,9 @@ rag-previdenciario/
 ├── docs/
 │   └── projeto-isp-rag.md
 ├── data/
-│   ├── raw/                    # ignorado; manifest.json versionado
-│   │   └── manifest.json
+│   ├── raw/                    # ignorado; manifest e sources versionados
+│   │   ├── manifest.json       # procedência do que foi baixado (R1)
+│   │   └── sources.json        # URLs públicas verificadas — fonte única
 │   └── processed/              # ignorado
 ├── src/isp_rag/
 │   ├── config.py               # Settings (pydantic-settings)
@@ -206,15 +207,22 @@ CREATE TABLE ente (
     municipio       TEXT
 );
 
+-- Regime metodológico como entidade, não como array denormalizado: a
+-- comparabilidade é DERIVADA (mesmo regime = comparável), e um terceiro
+-- regime futuro entra como linha, sem migração nem UPDATE retroativo.
+CREATE TABLE regime (
+    id              TEXT PRIMARY KEY,   -- 'tercil-anual' | 'corte-historico'
+    descricao       TEXT NOT NULL,
+    texto_ressalva  TEXT NOT NULL,      -- a ressalva servida ao usuário
+    escala_conceito TEXT[] NOT NULL     -- conceitos válidos NESTE regime
+);
+
 CREATE TABLE edicao (
-    ano                SMALLINT PRIMARY KEY,
-    metodologia_ref    TEXT,
-    url_fonte          TEXT NOT NULL,
-    -- Ruptura metodológica: edições com regimes diferentes não são comparáveis
-    -- entre si. O ISP-2025 foi reformulado e o Ministério declara isso
-    -- explicitamente. Ver §7.1.
-    regime_metodologico TEXT NOT NULL,      -- 'tercil-anual' | 'corte-historico'
-    comparavel_com      SMALLINT[] NOT NULL -- anos comparáveis a este
+    ano                 SMALLINT PRIMARY KEY,
+    metodologia_ref     TEXT,
+    url_fonte           TEXT NOT NULL,
+    regime_metodologico TEXT NOT NULL REFERENCES regime(id),  -- ver §7.1
+    n_entes_avaliados   INTEGER    -- tercil é relativo a este universo
 );
 
 CREATE TABLE isp_resultado (
@@ -254,11 +262,27 @@ O ISP-2025 foi reformulado. O Ministério declara: *"devido às alterações na
 metodologia e na composição do ISP-2025, os resultados não são comparáveis com
 os obtidos nos índices dos anos anteriores"*.
 
-O que mudou, e por que importa para o RAG:
+**Antes: duas escalas, não uma** (verificado no relatório oficial do ISP-2025).
+
+- **Indicador parcial** → `A`, `B` ou `C`. É aqui que opera o tercil, e é isto
+  que a reformulação mudou. *"A cada indicador foi atribuída uma nota ou
+  classificação 'A', 'B' ou 'C'."*
+- **Classificação final do ente** → `A` a `E`, cinco níveis. Confirmado pelo
+  mapeamento de perfil atuarial (Portaria SPREV 14.762/2020): *"Perfil Atuarial
+  I: os RPPS com classificação D no ISP-RPPS; II — classificação C; III —
+  classificação B; IV — classificação A"*, mais a classe `E`.
+
+Confundir as duas é erro fácil — "tercil" (3 grupos) parece contradizer uma
+escala de 5 letras, mas operam em níveis diferentes. No schema:
+`isp_componente.nota_componente` guarda A/B/C; `isp_resultado.conceito` guarda
+A–E. A auditoria de setembro/2026 levantou isso como suposta contradição; a
+fonte primária confirma que não é.
+
+O que mudou em 2025, e por que importa para o RAG:
 
 | | Até 2024 | A partir de 2025 |
 |---|---|---|
-| Atribuição de conceito | **Tercil anual** — ordena os RPPS do ano e divide em três | **Cortes fixos** derivados da distribuição histórica |
+| Atribuição (indicador parcial) | **Tercil anual** — ordena os RPPS do ano e divide em três | **Cortes fixos** por pontos de menor densidade na distribuição |
 | Natureza da nota | **Relativa** — depende de quem mais foi avaliado naquele ano | **Absoluta** — depende só do próprio desempenho |
 | Indicadores | conjunto anterior | +3 novos (resultado financeiro da equalização do déficit atuarial; sustentabilidade atuarial sobre RCL; comprometimento atuarial da RCL) |
 | Dimensões | — | 3 dimensões × 3 indicadores, pesos equilibrados |
@@ -278,9 +302,40 @@ que agora sabemos que ela é real, não hipotética.
 > declarar a ruptura**. Apresentar o delta sem a ressalva é um erro de fidelidade
 > tão grave quanto inventar um prazo — e mais perigoso, porque parece correto.
 
-Implementação: `edicao.regime_metodologico` e `edicao.comparavel_com` carregam a
-informação; o prompt de síntese (T09) checa se as edições citadas pertencem ao
-mesmo regime e, se não, antepõe a ressalva.
+**A ressalva é injetada por código, nunca confiada ao LLM.**
+
+Confiar na regra 5 do prompt de síntese seria multiplicar duas probabilidades —
+o LLM do Text-to-SQL lembrar de trazer o regime, e o da síntese lembrar de
+ressalvar — e vender isso como invariante. Pior: se o SQL não trouxe o regime,
+a síntese é *logicamente incapaz* de ressalvar, porque a informação não está no
+contexto.
+
+Duas defesas estruturais, ambas obrigatórias:
+
+1. **VIEW em vez de tabela crua.** O Text-to-SQL enxerga
+   `isp_resultado_v` (join de `isp_resultado` com `edicao` e `regime`), não a
+   tabela nua. Torna-se impossível selecionar uma nota sem poder ver o regime.
+
+2. **Checagem determinística pós-execução.** Entre `run_sql()` e
+   `build_context()`, um passo que não envolve LLM:
+
+   ```python
+   def checar_regimes(resultset, sql) -> str | None:
+       """Extrai os anos presentes no resultset (e os literais do SQL),
+       resolve o regime de cada um e devolve a ressalva se houver mais de
+       um regime. None se todos do mesmo regime."""
+   ```
+
+   Se devolver texto, ele é **injetado no contexto como fonte obrigatória**,
+   antes da síntese. A regra 5 do prompt vira reforço, não a defesa.
+
+**Por que a checagem olha os dados, não a pergunta.** O modo de falha mais
+provável não é a pergunta que diz "compare 2024 e 2025" — essa está protegida.
+É "a situação do RPPS de X melhorou?" ou "qual a trajetória do conceito de X?":
+o SQL puxa a série 2017–2025 inteira, a resposta narra uma evolução, e a régua
+muda no meio sem que ninguém tenha pedido uma comparação. Uma defesa acoplada à
+*categoria da pergunta* cobre as perguntas que o gold set conhece; uma acoplada
+ao *resultset* cobre todas.
 
 ---
 

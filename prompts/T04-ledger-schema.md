@@ -38,9 +38,22 @@ R6 — edicao_ano é dimensão de primeira classe em toda tabela de fato. Quase 
   );
 
   CREATE TABLE IF NOT EXISTS edicao (
-      ano             SMALLINT PRIMARY KEY,
-      metodologia_ref TEXT,
-      url_fonte       TEXT NOT NULL
+      ano                 SMALLINT PRIMARY KEY,
+      metodologia_ref     TEXT,
+      url_fonte           TEXT NOT NULL,
+      -- Regime metodológico. Edições de regimes diferentes NÃO são
+      -- comparáveis: até 2024 o conceito vinha de tercil anual (relativo),
+      -- de 2025 em diante de cortes fixos históricos (absoluto).
+      -- Ver plan.md §7.1.
+      regime_metodologico TEXT NOT NULL REFERENCES regime(id),
+      n_entes_avaliados   INTEGER
+  );
+
+  CREATE TABLE IF NOT EXISTS regime (
+      id              TEXT PRIMARY KEY,   -- 'tercil-anual' | 'corte-historico'
+      descricao       TEXT NOT NULL,
+      texto_ressalva  TEXT NOT NULL,      -- a ressalva servida ao usuário
+      escala_conceito TEXT[] NOT NULL     -- conceitos válidos NESTE regime
   );
 
   CREATE TABLE IF NOT EXISTS isp_resultado (
@@ -129,15 +142,27 @@ mudou a régua.
 
 Portanto, a tabela `edicao` tem duas colunas a mais (já no schema acima):
 
-  regime_metodologico  TEXT      -- 'tercil-anual' (2017-2024) | 'corte-historico' (2025+)
-  comparavel_com       SMALLINT[] -- anos do mesmo regime
+  regime_metodologico  TEXT REFERENCES regime(id)
+  n_entes_avaliados    INTEGER   -- o tercil é relativo a este universo
 
-  Popule na carga:
-    2017..2024 → 'tercil-anual',    comparavel_com = {2017..2024}
-    2025       → 'corte-historico', comparavel_com = {2025}
+  A comparabilidade é DERIVADA, não armazenada: duas edições são comparáveis
+  se e somente se `regime_metodologico` é igual. Não guarde lista de anos
+  comparáveis — seria dado derivado, que diverge do regime e exige UPDATE
+  retroativo a cada edição nova.
 
-  Se uma edição futura mantiver o regime de 2025, ela entra em comparavel_com
-  de 2025 e vice-versa.
+  Popule a tabela `regime` primeiro (seed, não vem de planilha):
+
+    ('tercil-anual', 'Conceito por tercil anual — nota relativa à distribuição
+      do ano', '<texto da ressalva>', '{A,B,C,D,E}')
+    ('corte-historico', 'Conceito por cortes fixos de densidade — nota
+      absoluta; +3 indicadores', '<texto da ressalva>', '{A,B,C,D,E}')
+
+  Depois, na carga de cada edição:
+    2017..2024 → regime_metodologico = 'tercil-anual'
+    2025       → regime_metodologico = 'corte-historico'
+
+  Uma edição futura só precisa apontar para o regime certo; se for um regime
+  novo, insere-se uma linha em `regime` — sem migração.
 
 E um helper que o resto do sistema consome:
 

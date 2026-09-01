@@ -43,11 +43,35 @@ R6 — edicao_ano é a chave temporal. O prompt de contexto precisa deixar isso
 
     - conceito é CHAR(1) de 'A' a 'E', onde A é o melhor
     - edicao_ano é a chave temporal; comparar edições = filtrar/agrupar por ela
-    - ATENÇÃO: edicao.regime_metodologico separa 'tercil-anual' (2017–2024) de
-      'corte-historico' (2025+). Conceitos de regimes diferentes NÃO são
-      comparáveis — a régua mudou, não só o desempenho. Em query que cruze
-      edições, TRAGA edicao.regime_metodologico no SELECT, para a síntese poder
-      declarar a ressalva. Ver plan.md §7.1.
+    - regime_metodologico separa 'tercil-anual' (2017–2024) de 'corte-historico'
+      (2025+). Conceitos de regimes diferentes NÃO são comparáveis — a régua
+      mudou, não só o desempenho. Ver plan.md §7.1.
+
+### 1b. VIEW, não tabela crua (defesa estrutural)
+
+  O include_tables expõe `isp_resultado_v`, NÃO `isp_resultado`:
+
+    CREATE OR REPLACE VIEW isp_resultado_v AS
+    SELECT r.*, e.regime_metodologico, e.n_entes_avaliados, e.url_fonte
+    FROM isp_resultado r JOIN edicao e ON e.ano = r.edicao_ano;
+
+  Assim é impossível o modelo selecionar uma nota sem que o regime esteja
+  disponível. Não dependa de instruir o LLM a lembrar do JOIN — se dependesse,
+  a defesa seria probabilística. Ver plan.md §7.1.
+
+### 1c. Checagem determinística de regime
+
+  def checar_regimes(resultset, sql: str) -> str | None:
+      """
+      SEM LLM. Extrai os anos presentes no resultset (varre valores 2017–2099
+      em qualquer coluna) e os literais de ano no próprio SQL. Resolve o
+      regime de cada ano via tabela `regime`. Se houver mais de um regime,
+      devolve regime.texto_ressalva; senão None.
+      """
+
+  Chamada obrigatória entre run_sql() e a síntese. O retorno vai para T09 ser
+  injetado no contexto como fonte. Teste com resultset que mistura 2024 e 2025
+  e com um só de 2022–2024.
     - cnpj tem 14 dígitos, sem pontuação
     - nota_final é NUMERIC(5,4), escala 0 a 1
     - isp_componente guarda a memória de cálculo: um registro por
