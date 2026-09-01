@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/resultado-final-isp-2025-_-publicado-em-04_12_2025-1.xlsx",
+    "filename": "resultado-final-isp-2025-_-publicado-em-04_12_2025-1.xlsx",
+    "fetched_at": "2026-09-01T18:26:46.905671Z",
+    "size_bytes": 3550002,
+    "sha256": "513fc0c37bcbc8c493365f2b39a1d1af6a1e0bbddce1c146024f11f46314dedf",
+    "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  {
+    "url": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/relatorio-do-indicador-de-situacao-previdenciaria-isp-2025_publicado-em-04_12_2025.pdf",
+    "filename": "relatorio-do-indicador-de-situacao-previdenciaria-isp-2025_publicado-em-04_12_2025.pdf",
+    "fetched_at": "2026-09-01T18:26:48.273029Z",
+    "size_bytes": 2985543,
+    "sha256": "7c40ea87d3c4d24be9cff5ab8dcad0d9bcd769e45b06cb40aad4312ecfc59fa3",
+    "content_type": "application/pdf"
+  },
+  {
+    "url": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/rt_diaq_002_2025_dm-088343_isp.pdf",
+    "filename": "rt_diaq_002_2025_dm-088343_isp.pdf",
+    "fetched_at": "2026-09-01T18:26:49.735190Z",
+    "size_bytes": 3148286,
+    "sha256": "88367310bc90cc9aa7333545497ab4edeb20b33278470f65502f9cae4893a82d",
+    "content_type": "application/pdf"
+  },
+  {
+    "url": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/rt_diaq_013_2025_dm-206416_isp.pdf",
+    "filename": "rt_diaq_013_2025_dm-206416_isp.pdf",
+    "fetched_at": "2026-09-01T18:26:50.609757Z",
+    "size_bytes": 1549392,
+    "sha256": "20099f7c3d52b23f89b932b61ca4077732e213e8d0fd49fae951bea8c2b1bebf",
+    "content_type": "application/pdf"
+  }
+]
