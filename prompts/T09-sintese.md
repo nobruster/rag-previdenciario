@@ -57,6 +57,15 @@ REGRAS:
 4. VIGÊNCIA. Se o contexto traz dispositivo revogado ou alterado, diga isso
    explicitamente e informe a situação atual, se houver no contexto.
 
+5. COMPARABILIDADE ENTRE EDIÇÕES. O ISP-2025 foi reformulado: até 2024 o
+   conceito vinha de tercil anual (nota RELATIVA à distribuição do ano); de
+   2025 em diante vem de cortes fixos sobre a distribuição histórica (nota
+   ABSOLUTA), com 3 indicadores novos.
+   Se a resposta compara edições de regimes diferentes, ABRA com a ressalva:
+   a variação do conceito NÃO significa, por si só, mudança de desempenho —
+   a régua mudou. Apresentar o delta sem essa ressalva é erro grave, porque a
+   resposta parece correta e não é.
+
 CONTEXTO:
 {context}
 
@@ -124,6 +133,11 @@ Não invente um prompt "melhorado" que suavize estas regras. A dureza é o produ
   - is_refusal() tolera "Nao ha base na documentacao indexada..." sem acento
   - resposta com sources vazio mas nodes não-vazio → tratada como recusa,
     nunca emitida como resposta sem fonte
+  - contexto com resultado de 2024 E de 2025 → a resposta contém a ressalva de
+    comparabilidade (regra 5). Este é o caso mais fácil de passar despercebido:
+    a resposta sai fluente e plausível sem ela.
+  - contexto só com 2023 e 2024 (mesmo regime) → NÃO traz a ressalva; avisar
+    onde não é preciso também degrada a resposta
 
 ## Validação
 

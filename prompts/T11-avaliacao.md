@@ -52,6 +52,20 @@ R4 — O gold set é escrito MANUALMENTE a partir dos dados reais já carregados
                            Tem expected_source_ref.
   comparacao_edicoes (8) — exige Ledger e, dependendo da formulação, Brain.
                            Delta entre edições, evolução de conceito.
+
+                           OBRIGATÓRIO: pelo menos 3 dessas 8 devem CRUZAR a
+                           fronteira 2024↔2025 (ruptura metodológica, plan.md
+                           §7.1). Marque-as com "requires_ressalva": true.
+                           A resposta só conta como correta se DECLARAR que os
+                           regimes são diferentes. Uma resposta que apresenta o
+                           delta sem a ressalva é ERRADA, ainda que o número
+                           esteja certo — e é o modo de falha mais perigoso do
+                           sistema, porque sai fluente e plausível.
+
+                           Inclua também 2 que comparam DENTRO do mesmo regime
+                           (ex.: 2022 vs 2024) com "requires_ressalva": false,
+                           para pegar o falso positivo: avisar onde não precisa
+                           também degrada a resposta.
   capciosa (8)           — cita norma REVOGADA ou critério de edição em que ele
                            não existia. O sistema deve CORRIGIR a premissa.
                            should_refuse=false — corrigir não é recusar.
@@ -134,6 +148,17 @@ R4 — O gold set é escrito MANUALMENTE a partir dos dados reais já carregados
       0 = deveria recusar e respondeu, ou recusou tendo base
       1 = comportamento ambíguo
       2 = recusou quando devia, respondeu quando devia
+
+    ressalva_comparabilidade:   (só em itens de comparacao_edicoes)
+      0 = comparou regimes diferentes SEM declarar a ruptura,
+          ou inseriu ressalva onde as edições eram comparáveis
+      1 = mencionou de forma vaga, sem dizer o que mudou
+      2 = declarou a ruptura e explicou que a variação do conceito não
+          equivale a mudança de desempenho — ou, corretamente, não
+          ressalvou quando o regime era o mesmo
+
+  Reporte ressalva_comparabilidade separada das demais no resumo. Ela mede uma
+  falha específica deste domínio e não deve ficar diluída na média.
 
   O judge recebe: pergunta, contexto recuperado, resposta, e o item do gold set.
   Devolve JSON com as três notas e uma justificativa por eixo.

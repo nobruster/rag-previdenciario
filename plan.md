@@ -207,9 +207,14 @@ CREATE TABLE ente (
 );
 
 CREATE TABLE edicao (
-    ano             SMALLINT PRIMARY KEY,
-    metodologia_ref TEXT,
-    url_fonte       TEXT NOT NULL
+    ano                SMALLINT PRIMARY KEY,
+    metodologia_ref    TEXT,
+    url_fonte          TEXT NOT NULL,
+    -- Ruptura metodológica: edições com regimes diferentes não são comparáveis
+    -- entre si. O ISP-2025 foi reformulado e o Ministério declara isso
+    -- explicitamente. Ver §7.1.
+    regime_metodologico TEXT NOT NULL,      -- 'tercil-anual' | 'corte-historico'
+    comparavel_com      SMALLINT[] NOT NULL -- anos comparáveis a este
 );
 
 CREATE TABLE isp_resultado (
@@ -240,6 +245,42 @@ CREATE TABLE siconfi_fiscal (      -- v1.5
     PRIMARY KEY (cnpj, exercicio)
 );
 ```
+
+---
+
+### 7.1 Ruptura metodológica de 2025 — comparabilidade
+
+O ISP-2025 foi reformulado. O Ministério declara: *"devido às alterações na
+metodologia e na composição do ISP-2025, os resultados não são comparáveis com
+os obtidos nos índices dos anos anteriores"*.
+
+O que mudou, e por que importa para o RAG:
+
+| | Até 2024 | A partir de 2025 |
+|---|---|---|
+| Atribuição de conceito | **Tercil anual** — ordena os RPPS do ano e divide em três | **Cortes fixos** derivados da distribuição histórica |
+| Natureza da nota | **Relativa** — depende de quem mais foi avaliado naquele ano | **Absoluta** — depende só do próprio desempenho |
+| Indicadores | conjunto anterior | +3 novos (resultado financeiro da equalização do déficit atuarial; sustentabilidade atuarial sobre RCL; comprometimento atuarial da RCL) |
+| Dimensões | — | 3 dimensões × 3 indicadores, pesos equilibrados |
+| Porte e maturidade | medianas e percentis | agrupamentos reais na distribuição |
+
+**A armadilha.** A letra do conceito é a mesma (A, B, C) e o tipo da coluna é o
+mesmo. Nada no dado sinaliza a ruptura. Um `SELECT` que compara 2024 com 2025
+roda sem erro e devolve um delta — que **não significa mudança de desempenho**.
+
+Um ente pode "cair" de B para C sem ter piorado em nada: mudou a régua. E o
+inverso também. Essa é exatamente a pergunta de demonstração da spec §3.4 — só
+que agora sabemos que ela é real, não hipotética.
+
+**Regra derivada (vale para T04, T05, T08, T11):**
+
+> Toda resposta que compare edições de regimes metodológicos diferentes **deve
+> declarar a ruptura**. Apresentar o delta sem a ressalva é um erro de fidelidade
+> tão grave quanto inventar um prazo — e mais perigoso, porque parece correto.
+
+Implementação: `edicao.regime_metodologico` e `edicao.comparavel_com` carregam a
+informação; o prompt de síntese (T09) checa se as edições citadas pertencem ao
+mesmo regime e, se não, antepõe a ressalva.
 
 ---
 

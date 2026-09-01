@@ -116,21 +116,46 @@ As planilhas mudam de formato entre edições (risco conhecido, spec §9). Por i
 o COLUMN_MAP explícito por ano: adicionar uma edição é adicionar uma entrada, e
 uma edição não mapeada falha alto em vez de carregar lixo.
 
-⚠️ RUPTURA METODOLÓGICA EM 2025. O Ministério declara que a edição 2025 passou
-por reformulação e que **seus resultados não são comparáveis com os das edições
-anteriores**. Consequências:
+⚠️ RUPTURA METODOLÓGICA EM 2025 — leia plan.md §7.1 antes de continuar.
 
-  - Grave isso em edicao.metodologia_ref (ex.: "reformulada em 2025 — não
-    comparável a edições anteriores")
-  - Uma pergunta de comparação que cruze a fronteira 2024↔2025 precisa que o
-    sistema AVISE da ruptura, em vez de apresentar o delta como se fosse
-    evolução de desempenho
-  - Não force um COLUMN_MAP comum entre 2025 e os anos anteriores; são
-    estruturas diferentes por decisão da fonte
+Até 2024 o conceito vinha de TERCIL ANUAL: ordenava-se os RPPS do ano e dividia
+em três. A nota era RELATIVA — dependia de quem mais foi avaliado naquele ano.
+A partir de 2025 são CORTES FIXOS derivados da distribuição histórica: a nota é
+ABSOLUTA. Além disso entraram 3 indicadores novos.
 
-Isso não é defeito do dado — é exatamente a "metodologia versionada" que a spec
-§1.2 aponta como uma das três propriedades que justificam o domínio, e é o
-material da pergunta de demonstração (§3.4).
+O perigo é que nada no dado sinaliza isso. A letra é a mesma, a coluna é a
+mesma, o SELECT roda liso. Um ente pode "cair" de B para C sem ter piorado:
+mudou a régua.
+
+Portanto, a tabela `edicao` tem duas colunas a mais (já no schema acima):
+
+  regime_metodologico  TEXT      -- 'tercil-anual' (2017-2024) | 'corte-historico' (2025+)
+  comparavel_com       SMALLINT[] -- anos do mesmo regime
+
+  Popule na carga:
+    2017..2024 → 'tercil-anual',    comparavel_com = {2017..2024}
+    2025       → 'corte-historico', comparavel_com = {2025}
+
+  Se uma edição futura mantiver o regime de 2025, ela entra em comparavel_com
+  de 2025 e vice-versa.
+
+E um helper que o resto do sistema consome:
+
+  def edicoes_comparaveis(a: int, b: int) -> bool:
+      """True se as duas edições pertencem ao mesmo regime metodológico."""
+
+  def ressalva_comparacao(anos: list[int]) -> str | None:
+      """Texto da ressalva quando os anos cruzam regimes; None se comparáveis.
+      Ex.: 'ISP-2025 foi reformulado (cortes fixos por distribuição histórica,
+      3 indicadores novos); seus resultados não são comparáveis aos de 2024 e
+      anteriores, que usavam tercil anual.'"""
+
+Não force COLUMN_MAP comum entre 2025 e os anos anteriores — são estruturas
+diferentes por decisão da fonte.
+
+Isso não é defeito do dado: é a "metodologia versionada" que a spec §1.2 aponta
+como uma das três propriedades que justificam o domínio, e é o que torna a
+pergunta de demonstração (§3.4) real em vez de hipotética.
 
 ### 3. src/isp_rag/ledger/verify.py
 

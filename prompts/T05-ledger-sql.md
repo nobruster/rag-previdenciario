@@ -43,6 +43,11 @@ R6 — edicao_ano é a chave temporal. O prompt de contexto precisa deixar isso
 
     - conceito é CHAR(1) de 'A' a 'E', onde A é o melhor
     - edicao_ano é a chave temporal; comparar edições = filtrar/agrupar por ela
+    - ATENÇÃO: edicao.regime_metodologico separa 'tercil-anual' (2017–2024) de
+      'corte-historico' (2025+). Conceitos de regimes diferentes NÃO são
+      comparáveis — a régua mudou, não só o desempenho. Em query que cruze
+      edições, TRAGA edicao.regime_metodologico no SELECT, para a síntese poder
+      declarar a ressalva. Ver plan.md §7.1.
     - cnpj tem 14 dígitos, sem pontuação
     - nota_final é NUMERIC(5,4), escala 0 a 1
     - isp_componente guarda a memória de cálculo: um registro por
