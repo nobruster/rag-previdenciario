@@ -17,21 +17,34 @@ from isp_rag.contracts import EngineName
 from isp_rag.llm import llama_llm
 
 DESC_LEDGER = (
-    "Dados numéricos do Índice de Situação Previdenciária (ISP) por ente "
-    "federativo e por edição. Use para: conceitos (A a D) de um RPPS, rankings, "
-    "médias, contagens, comparação numérica entre entes ou entre edições, e a "
-    "memória de cálculo (a letra A/B/C de cada indicador parcial). "
+    "Banco de dados com o RESULTADO PUBLICADO do ISP por ente federativo e por "
+    "edição. Responde apenas o que é NÚMERO ou LETRA já apurada de um ente "
+    "concreto.\n"
+    "USE quando a pergunta pede: o conceito de um município ou estado nomeado; "
+    "contagem, ranking, média ou distribuição de entes; comparação de resultado "
+    "entre edições.\n"
+    "NÃO USE para 'o que é', 'como funciona', 'o que a norma exige', 'quais os "
+    "requisitos', 'quais as medidas' — mesmo que o assunto seja do domínio "
+    "previdenciário. Isso é definição ou regra, e está no memory.\n"
     "Exemplos: 'qual o conceito do RPPS de Campinas em 2025', 'quantos entes "
-    "tiveram conceito A', 'média por UF', 'quais os 5 melhores colocados'."
+    "tiveram conceito A', 'qual UF tem mais RPPS avaliados'."
 )
 
 DESC_MEMORY = (
-    "Texto normativo e técnico: Portaria MTP 1.467/2022, Leis 9.717/1998 e "
-    "10.887/2004, Emendas Constitucionais 20/1998, 41/2003, 47/2005 e 103/2019. "
-    "Use para: o que a norma EXIGE, prazos, requisitos, definições, conteúdo de "
-    "um artigo específico, metodologia do índice. "
-    "Exemplos: 'qual o prazo de envio do DIPR', 'o que exige o art. 241', "
-    "'quais os requisitos para emissão do CRP', 'o que é segurado'."
+    "Texto integral das normas dos RPPS: Portaria MTP 1.467/2022, Leis "
+    "9.717/1998 e 10.887/2004, Emendas Constitucionais 20/1998, 41/2003, "
+    "47/2005 e 103/2019.\n"
+    "USE quando a pergunta pede CONCEITO, DEFINIÇÃO, REGRA ou EXIGÊNCIA — "
+    "tudo que começa com 'o que é', 'o que significa', 'quais são as', 'quais "
+    "os requisitos', 'como funciona', 'o que a norma exige', 'qual o prazo' — "
+    "e também o conteúdo de um artigo citado.\n"
+    "É a engine correta para qualquer pergunta sobre institutos do domínio "
+    "(equacionamento de déficit, compensação previdenciária, certificação "
+    "institucional, Pró-Gestão, segurado, dependente), porque são definidos em "
+    "norma, não medidos por ente.\n"
+    "Exemplos: 'o que exige o art. 241', 'quais os requisitos para emissão do "
+    "CRP', 'o que é a compensação previdenciária', 'quais são as medidas de "
+    "equacionamento do déficit atuarial'."
 )
 
 DESC_BRAIN = (
@@ -59,6 +72,13 @@ _MUDANCA = re.compile(
     r"evolu[çc][ãa]o|desde)\b",
     re.IGNORECASE,
 )
+# Metodologia do índice: como o ISP é apurado, quais critérios o compõem.
+_METODOLOGIA = re.compile(
+    r"\b(metodologia|tercil|corte|crit[ée]rio|indicador(?:es)? parcia|"
+    r"como (?:o )?ISP|comp[õo]e|composi[çc][ãa]o|atribui|apura)\w*\b",
+    re.IGNORECASE,
+)
+_EDICAO = re.compile(r"\b(20\d{2}|edi[çc][ãa]o|edi[çc][õo]es)\b", re.IGNORECASE)
 
 
 class RouteDecision(BaseModel):
@@ -74,11 +94,16 @@ def needs_decomposition(pergunta: str) -> bool:
 
     A pergunta de demonstração da spec §3.4 é o caso canônico: pede o delta
     numérico E a norma que o explica.
+
+    O terceiro caso — metodologia cruzada com edição — não tem termo numérico
+    ("o que mudou na metodologia do ISP em 2025?"), mas exige o Ledger para o
+    dado e o Memory para a regra. Sem ele, essas perguntas caem numa engine só.
     """
     tem_num = bool(_NUMERICO.search(pergunta))
     tem_norma = bool(_NORMATIVO.search(pergunta))
     tem_mudanca = bool(_MUDANCA.search(pergunta))
-    return (tem_num and tem_norma) or (tem_num and tem_mudanca)
+    metodologia_por_edicao = bool(_METODOLOGIA.search(pergunta) and _EDICAO.search(pergunta))
+    return (tem_num and tem_norma) or (tem_num and tem_mudanca) or metodologia_por_edicao
 
 
 def build_tools(

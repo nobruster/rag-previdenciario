@@ -151,7 +151,17 @@ JOIN ente   e  ON e.cnpj = r.cnpj
 JOIN edicao ed ON ed.ano = r.edicao_ano
 LEFT JOIN ente_grupo g ON g.cnpj = r.cnpj AND g.edicao_ano = r.edicao_ano;
 
+-- Este comentário é o ÚNICO contexto que chega ao Text-to-SQL sobre a view:
+-- o custom_table_info do LlamaIndex é ignorado para views. Os formatos literais
+-- abaixo evitam os erros observados na avaliação (T11).
 COMMENT ON VIEW isp_resultado_v IS
-    'Resultado do ISP com ente, grupo e regime metodológico. Use esta view, '
-    'nunca isp_resultado direto: comparar edições de regimes diferentes exige '
-    'declarar a ruptura metodológica.';
+    'Resultado do ISP por ente e edição. Use esta view, nunca isp_resultado direto. '
+    'FORMATOS LITERAIS (a comparação é sensível a caixa): '
+    'ente_nome é MAIÚSCULO e termina com a UF, ex.: ''CAMPINAS - SP'' — NUNCA use '
+    'ente_nome = ''Campinas''; para município use unaccent(ente_nome) ILIKE unaccent(''%CAMPINAS%''). '
+    'grupo é um de ''ESTADO/DF'', ''GRANDE PORTE'', ''MÉDIO PORTE'', ''PEQUENO PORTE'', '
+    '''NÃO CLASSIFICADO'' — nunca ''Grande Porte''. '
+    'subgrupo é ''MENOR MATURIDADE'', ''MAIOR MATURIDADE'', ''ESTADO/DF'' ou ''NÃO CLASSIFICADO''. '
+    'conceito vai de A (melhor) a D (pior); não existe E. '
+    'Para contar entes, conte nesta view — nunca junte com isp_componente, que tem '
+    '~9 linhas por ente e multiplicaria a contagem.';

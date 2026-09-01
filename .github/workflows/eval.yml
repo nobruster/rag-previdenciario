@@ -1,0 +1,71 @@
+name: eval
+
+# Métricas determinísticas a cada push. O judge NÃO roda aqui — é o custo
+# dominante e fica para os marcos de versão (tag).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  deterministico:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: isp
+          POSTGRES_PASSWORD: isp
+          POSTGRES_DB: isp_rag
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U isp -d isp_rag"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      qdrant:
+        image: qdrant/qdrant:latest
+        ports: ["6333:6333"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar
+        run: pip install -e ".[dev]"
+
+      - name: Testes (sem custo de LLM)
+        env:
+          OPENAI_API_KEY: sk-ci-placeholder
+          POSTGRES_DSN: postgresql://isp:isp@localhost:5432/isp_rag
+          QDRANT_URL: http://localhost:6333
+          NEO4J_URI: bolt://localhost:7687
+          NEO4J_USER: neo4j
+          NEO4J_PASSWORD: ci
+        run: pytest -q
+
+      - name: Lint
+        run: ruff check src tests
+
+      # A avaliação exige chave real e os dados carregados. Roda apenas quando
+      # o segredo existe — em fork, os passos acima já cobrem o essencial.
+      - name: Avaliação determinística
+        if: ${{ env.OPENAI_KEY_PRESENTE == 'true' }}
+        env:
+          OPENAI_KEY_PRESENTE: ${{ secrets.OPENAI_API_KEY != '' }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          POSTGRES_DSN: postgresql://isp:isp@localhost:5432/isp_rag
+          QDRANT_URL: http://localhost:6333
+          NEO4J_URI: bolt://localhost:7687
+          NEO4J_USER: neo4j
+          NEO4J_PASSWORD: ci
+        run: |
+          python -m isp_rag.ingestion.fetch_isp --year 2025
+          python -m isp_rag.ledger.load --year 2025
+          python -m isp_rag.ingestion.fetch_legislacao
+          python -m isp_rag.memory.index --all
+          python -m eval.run_all --deterministic-only --limiar-roteamento 0.85

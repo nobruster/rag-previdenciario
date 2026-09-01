@@ -1,0 +1,680 @@
+{
+  "_meta": {
+    "versao": "1.0",
+    "escrito_em": "2026-09-01",
+    "regra": "Perguntas escritas MANUALMENTE sobre dados reais já carregados (R4). Nenhuma gerada por LLM — um gold set gerado pelo mesmo tipo de modelo que será avaliado mede concordância, não correção.",
+    "cobertura": "Cada item traz o veredito de isp_rag.memory.cobertura.diagnosticar_recusa(). should_refuse=false só onde o corpus cobre o assunto; o recall exclui do denominador os itens sem cobertura.",
+    "edicoes_carregadas": [
+      2025
+    ],
+    "nota_edicoes": "Itens que exigem 2022-2024 ficam com requires.edicoes e são PULADOS enquanto essas edições não estiverem carregadas — pulado não é falha.",
+    "nota_roteamento": "Itens de sem_resposta têm expected_engine=null e ficam FORA da métrica de roteamento. O que se mede neles é a recusa (should_refuse), não a rota."
+  },
+  "perguntas": [
+    {
+      "id": "gs-001",
+      "question": "Quantos entes tiveram conceito A no ISP de 2025?",
+      "category": "fato_numerico",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "reference_sql": "SELECT count(*) FROM isp_resultado_v WHERE edicao_ano = 2025 AND conceito = 'A'",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "32 entes — verificado contra a planilha oficial"
+    },
+    {
+      "id": "gs-002",
+      "question": "Qual o conceito do RPPS de Campinas em 2025?",
+      "category": "fato_numerico",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "reference_sql": "SELECT conceito FROM isp_resultado_v WHERE edicao_ano = 2025 AND ente_nome = 'CAMPINAS - SP'",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "conceito C"
+    },
+    {
+      "id": "gs-003",
+      "question": "Quantos RPPS foram avaliados na edição 2025 do ISP?",
+      "category": "fato_numerico",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "reference_sql": "SELECT count(*) FROM isp_resultado_v WHERE edicao_ano = 2025",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "2133"
+    },
+    {
+      "id": "gs-004",
+      "question": "Qual estado tem mais RPPS avaliados no ISP 2025?",
+      "category": "fato_numerico",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "reference_sql": "SELECT uf, count(*) AS n FROM isp_resultado_v WHERE edicao_ano = 2025 GROUP BY uf ORDER BY n DESC LIMIT 1",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "RS, 331 entes"
+    },
+    {
+      "id": "gs-005",
+      "question": "Quantos entes receberam conceito D em 2025?",
+      "category": "fato_numerico",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "reference_sql": "SELECT count(*) FROM isp_resultado_v WHERE edicao_ano = 2025 AND conceito = 'D'",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "886 — o conceito mais frequente"
+    },
+    {
+      "id": "gs-006",
+      "question": "Qual o conceito do RPPS de Santos em 2025?",
+      "category": "fato_numerico",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "reference_sql": "SELECT conceito FROM isp_resultado_v WHERE edicao_ano = 2025 AND ente_nome = 'SANTOS - SP'",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "conceito A"
+    },
+    {
+      "id": "gs-007",
+      "question": "Quantos entes estão no grupo Grande Porte no ISP 2025?",
+      "category": "fato_numerico",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "reference_sql": "SELECT count(*) FROM isp_resultado_v WHERE edicao_ano = 2025 AND grupo = 'GRANDE PORTE'",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "159"
+    },
+    {
+      "id": "gs-008",
+      "question": "Qual a distribuição de conceitos do ISP 2025?",
+      "category": "fato_numerico",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "reference_sql": "SELECT conceito, count(*) FROM isp_resultado_v WHERE edicao_ano = 2025 GROUP BY conceito ORDER BY conceito",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "A=32 B=459 C=756 D=886"
+    },
+    {
+      "id": "gs-009",
+      "question": "Quais os requisitos para emissão do CRP?",
+      "category": "exigencia_normativa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "expected_source_ref": "Portaria MTP nº 1.467/2022, art. 247",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "CRP em 26 chunks"
+    },
+    {
+      "id": "gs-010",
+      "question": "O que estabelece o art. 241 da Portaria MTP 1.467/2022?",
+      "category": "exigencia_normativa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "expected_source_ref": "Portaria MTP nº 1.467/2022, art. 241",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "lookup por citação — deve vir em top-1"
+    },
+    {
+      "id": "gs-011",
+      "question": "Quem são os segurados de um RPPS?",
+      "category": "exigencia_normativa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "expected_source_ref": "Portaria MTP nº 1.467/2022, art. 3",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "segurado em 142 chunks"
+    },
+    {
+      "id": "gs-012",
+      "question": "O que é o Pró-Gestão RPPS?",
+      "category": "exigencia_normativa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "5 chunks — cobertura suficiente"
+    },
+    {
+      "id": "gs-013",
+      "question": "Quais são as medidas de equacionamento do déficit atuarial?",
+      "category": "exigencia_normativa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "equacionamento em 40 chunks"
+    },
+    {
+      "id": "gs-014",
+      "question": "Em que hipóteses ocorre a perda da condição de segurado do RPPS?",
+      "category": "exigencia_normativa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "expected_source_ref": "Portaria MTP nº 1.467/2022, art. 6",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "art. 6º trata disso"
+    },
+    {
+      "id": "gs-015",
+      "question": "O que é a compensação previdenciária entre regimes?",
+      "category": "exigencia_normativa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "compensação em 46 chunks"
+    },
+    {
+      "id": "gs-016",
+      "question": "Quais os níveis de certificação institucional dos RPPS?",
+      "category": "exigencia_normativa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "certificação em 20 chunks"
+    },
+    {
+      "id": "gs-017",
+      "question": "O conceito do RPPS de Campinas melhorou entre 2024 e 2025?",
+      "category": "comparacao_edicoes",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2024,
+          2025
+        ]
+      },
+      "requires_ressalva": true,
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "CRUZA A RUPTURA. A resposta só conta como correta se declarar que os regimes são diferentes."
+    },
+    {
+      "id": "gs-018",
+      "question": "Quantos entes tinham conceito A em 2024 e quantos em 2025?",
+      "category": "comparacao_edicoes",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2024,
+          2025
+        ]
+      },
+      "requires_ressalva": true,
+      "reference_sql": "SELECT edicao_ano, count(*) FROM isp_resultado_v WHERE edicao_ano IN (2024, 2025) AND conceito = 'A' GROUP BY edicao_ano ORDER BY edicao_ano",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "CRUZA A RUPTURA — o delta não é evolução de desempenho"
+    },
+    {
+      "id": "gs-019",
+      "question": "Como evoluiu a situação previdenciária do RPPS de Curitiba de 2024 para 2025?",
+      "category": "comparacao_edicoes",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2024,
+          2025
+        ]
+      },
+      "requires_ressalva": true,
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "CRUZA A RUPTURA. Pergunta que NÃO diz 'compare' — é o modo de falha mais provável (plan.md §7.1)."
+    },
+    {
+      "id": "gs-020",
+      "question": "O conceito do RPPS de Campinas mudou entre 2022 e 2024?",
+      "category": "comparacao_edicoes",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2022,
+          2024
+        ]
+      },
+      "requires_ressalva": false,
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "MESMO REGIME — ressalvar aqui é FALSO POSITIVO e degrada a resposta"
+    },
+    {
+      "id": "gs-021",
+      "question": "Quantos entes tiveram conceito A em 2022 e em 2024?",
+      "category": "comparacao_edicoes",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2022,
+          2024
+        ]
+      },
+      "requires_ressalva": false,
+      "reference_sql": "SELECT edicao_ano, count(*) FROM isp_resultado_v WHERE edicao_ano IN (2022, 2024) AND conceito = 'A' GROUP BY edicao_ano ORDER BY edicao_ano",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "MESMO REGIME — sem ressalva"
+    },
+    {
+      "id": "gs-022",
+      "question": "Quantos entes o ISP avaliou em cada edição disponível?",
+      "category": "comparacao_edicoes",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "requires_ressalva": false,
+      "reference_sql": "SELECT ano, n_entes_avaliados FROM edicao ORDER BY ano DESC",
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "contagem por edição não compara conceito — não exige ressalva"
+    },
+    {
+      "id": "gs-023",
+      "question": "O que mudou na metodologia do ISP em 2025?",
+      "category": "comparacao_edicoes",
+      "expected_engine": "multi",
+      "requires": {
+        "engines": [
+          "ledger",
+          "memory"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "requires_ressalva": true,
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "pede a explicação da ruptura, não o delta"
+    },
+    {
+      "id": "gs-024",
+      "question": "O RPPS de Recife caiu de conceito entre 2024 e 2025? Foi o desempenho ou a metodologia?",
+      "category": "comparacao_edicoes",
+      "expected_engine": "multi",
+      "requires": {
+        "engines": [
+          "ledger",
+          "memory"
+        ],
+        "edicoes": [
+          2024,
+          2025
+        ]
+      },
+      "requires_ressalva": true,
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "A PERGUNTA DE DEMONSTRAÇÃO (spec §3.4), com ente real: Recife tem conceito A em 2025"
+    },
+    {
+      "id": "gs-025",
+      "question": "Qual a nota do RPPS de Campinas no ISP de 2016?",
+      "category": "capciosa",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "PREMISSA FALSA: o ISP começa em 2017. O sistema deve corrigir, não recusar."
+    },
+    {
+      "id": "gs-026",
+      "question": "Quantos entes receberam conceito E no ISP 2025?",
+      "category": "capciosa",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "PREMISSA FALSA: a escala final vai de A a D, não existe E. Verificado em 2022, 2024 e 2025."
+    },
+    {
+      "id": "gs-027",
+      "question": "O indicador parcial de regularidade pode receber conceito D?",
+      "category": "capciosa",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "PREMISSA FALSA: indicador parcial usa A/B/C — escala diferente do conceito final"
+    },
+    {
+      "id": "gs-028",
+      "question": "O que diz o art. 9999 da Portaria MTP 1.467/2022?",
+      "category": "capciosa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "fora_do_corpus",
+      "notes": "artigo inexistente — a Portaria tem 288 artigos"
+    },
+    {
+      "id": "gs-029",
+      "question": "A Portaria MTP 1.467/2022 foi revogada pela Emenda Constitucional 103/2019?",
+      "category": "capciosa",
+      "expected_engine": "memory",
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "PREMISSA FALSA e anacrônica: a EC é de 2019, anterior à Portaria de 2022"
+    },
+    {
+      "id": "gs-030",
+      "question": "Como o ISP 2025 usa o tercil anual para atribuir conceitos?",
+      "category": "capciosa",
+      "expected_engine": "multi",
+      "requires": {
+        "engines": [
+          "ledger",
+          "memory"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "PREMISSA FALSA: 2025 abandonou o tercil e passou a cortes fixos"
+    },
+    {
+      "id": "gs-031",
+      "question": "Qual o conceito do RPPS de Brasília no ISP 2025?",
+      "category": "capciosa",
+      "expected_engine": "ledger",
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "PREMISSA IMPRECISA: o ente é 'GOVERNO DO DISTRITO FEDERAL', do grupo ESTADO/DF"
+    },
+    {
+      "id": "gs-032",
+      "question": "Quantos indicadores parciais compunham o ISP em 2025, sendo que eram seis?",
+      "category": "capciosa",
+      "expected_engine": "multi",
+      "requires": {
+        "engines": [
+          "ledger",
+          "memory"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "should_refuse": false,
+      "cobertura": "coberto",
+      "notes": "PREMISSA FALSA: são 9 no Ledger de 2025; a fonte declara 3 dimensões x 3 indicadores"
+    },
+    {
+      "id": "gs-033",
+      "question": "Qual a alíquota de contribuição do RGPS para trabalhadores da iniciativa privada?",
+      "category": "sem_resposta",
+      "expected_engine": null,
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "fora_do_corpus",
+      "notes": "RGPS, não RPPS — fora do escopo do corpus | expected_engine=None: para pergunta que deve ser RECUSADA, a engine escolhida é irrelevante — medir isso é ruído."
+    },
+    {
+      "id": "gs-034",
+      "question": "Qual a nota do RPPS de Lisboa no ISP 2025?",
+      "category": "sem_resposta",
+      "expected_engine": null,
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "fora_do_corpus",
+      "notes": "ente estrangeiro — 0 chunks | expected_engine=None: para pergunta que deve ser RECUSADA, a engine escolhida é irrelevante — medir isso é ruído."
+    },
+    {
+      "id": "gs-035",
+      "question": "Qual o prazo para envio do DIPR?",
+      "category": "sem_resposta",
+      "expected_engine": null,
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "cobertura_rasa",
+      "notes": "CASO INVESTIGADO: DIPR em 2 chunks de 714 e nenhum enuncia o prazo, regulado em norma fora do corpus. A recusa é CORRETA — não conta como falha de recuperação. | expected_engine=None: para pergunta que deve ser RECUSADA, a engine escolhida é irrelevante — medir isso é ruído."
+    },
+    {
+      "id": "gs-036",
+      "question": "Qual a taxa Selic vigente hoje?",
+      "category": "sem_resposta",
+      "expected_engine": null,
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "fora_do_corpus",
+      "notes": "fora do domínio | expected_engine=None: para pergunta que deve ser RECUSADA, a engine escolhida é irrelevante — medir isso é ruído."
+    },
+    {
+      "id": "gs-037",
+      "question": "Quantos servidores públicos federais existem no Brasil?",
+      "category": "sem_resposta",
+      "expected_engine": null,
+      "requires": {
+        "engines": [
+          "ledger"
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "fora_do_corpus",
+      "notes": "o Ledger tem entes e conceitos, não contagem de servidores | expected_engine=None: para pergunta que deve ser RECUSADA, a engine escolhida é irrelevante — medir isso é ruído."
+    },
+    {
+      "id": "gs-038",
+      "question": "Qual a expectativa de vida usada na tábua atuarial de cada município?",
+      "category": "sem_resposta",
+      "expected_engine": null,
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "fora_do_corpus",
+      "notes": "dado não publicado na planilha do ISP | expected_engine=None: para pergunta que deve ser RECUSADA, a engine escolhida é irrelevante — medir isso é ruído."
+    },
+    {
+      "id": "gs-039",
+      "question": "Qual o valor total arrecadado pelo RPPS de Campinas em 2025?",
+      "category": "sem_resposta",
+      "expected_engine": null,
+      "requires": {
+        "engines": [
+          "ledger"
+        ],
+        "edicoes": [
+          2025
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "fora_do_corpus",
+      "notes": "o ISP publica letra, não valor financeiro (SICONFI é v1.5) | expected_engine=None: para pergunta que deve ser RECUSADA, a engine escolhida é irrelevante — medir isso é ruído."
+    },
+    {
+      "id": "gs-040",
+      "question": "Qual a capital da Mongólia?",
+      "category": "sem_resposta",
+      "expected_engine": null,
+      "requires": {
+        "engines": [
+          "memory"
+        ]
+      },
+      "should_refuse": true,
+      "cobertura": "fora_do_corpus",
+      "notes": "controle: totalmente fora do domínio | expected_engine=None: para pergunta que deve ser RECUSADA, a engine escolhida é irrelevante — medir isso é ruído."
+    }
+  ]
+}

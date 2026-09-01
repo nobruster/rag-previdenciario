@@ -48,10 +48,18 @@ CONTEXTO = {
         "(2025+). Conceitos de regimes diferentes NÃO são comparáveis — a régua "
         "mudou, não só o desempenho. Em consulta que cruze edições, traga esta "
         "coluna no SELECT.\n"
-        "- grupo/subgrupo: porte e maturidade. A classificação é atribuída DENTRO "
-        "do grupo, então média nacional de conceito costuma ser a pergunta errada.\n"
-        "- cnpj: 14 dígitos, sem pontuação.\n"
-        "Para buscar por município, use: unaccent(ente_nome) ILIKE unaccent('%nome%')."
+        "- grupo: MAIÚSCULAS, um de exatamente: 'ESTADO/DF', 'GRANDE PORTE', "
+        "'MÉDIO PORTE', 'PEQUENO PORTE', 'NÃO CLASSIFICADO'. Nunca escreva "
+        "'Grande Porte' — a comparação é sensível a caixa e não casaria.\n"
+        "- subgrupo: 'MENOR MATURIDADE', 'MAIOR MATURIDADE', 'ESTADO/DF' ou "
+        "'NÃO CLASSIFICADO'. A classificação é atribuída DENTRO do "
+        "grupo/subgrupo, então média nacional de conceito costuma ser a "
+        "pergunta errada.\n"
+        "- ente_nome: MAIÚSCULAS e com a UF no fim, no formato 'CAMPINAS - SP'. "
+        "NUNCA use igualdade com o nome puro ('Campinas') — não casa. Para "
+        "buscar por município, use SEMPRE:\n"
+        "    unaccent(ente_nome) ILIKE unaccent('%CAMPINAS%')\n"
+        "- cnpj: 14 dígitos, sem pontuação."
     ),
     "isp_componente": (
         "Memória de cálculo: a classificação de cada indicador parcial que compõe "
@@ -66,7 +74,11 @@ CONTEXTO = {
     "ente_grupo": "Porte e maturidade do ente naquela edição (o ente pode migrar de grupo).",
     "edicao": (
         "Edição anual do ISP (2017-2025), com url_fonte, regime_metodologico e "
-        "n_entes_avaliados (universo do ano — o tercil é relativo a ele)."
+        "n_entes_avaliados (universo do ano — o tercil é relativo a ele).\n"
+        "Para 'quantos entes por edição', leia n_entes_avaliados direto desta "
+        "tabela ou conte em isp_resultado_v. NÃO faça JOIN de edicao com "
+        "isp_componente para contar entes: há ~9 componentes por ente e a "
+        "contagem sai multiplicada."
     ),
     "regime": (
         "Regime metodológico. texto_ressalva é o aviso a servir quando uma "
