@@ -151,10 +151,19 @@ def build_subquestion_engine(
     reference_date: date | None = None,
     brain_enabled: bool = False,
 ) -> SubQuestionQueryEngine:
-    """Cruza domínios: decompõe em sub-perguntas e sintetiza ao final."""
+    """Cruza domínios: decompõe em sub-perguntas e sintetiza ao final.
+
+    O question_generator é passado explicitamente: o default de
+    `from_defaults` importa `llama_index.question_gen.openai`, cujo pacote
+    ainda exige llama-index-core <0.13 e forçaria um downgrade do core.
+    """
+    from llama_index.core.question_gen import LLMQuestionGenerator
+
+    llm = llama_llm()
     return SubQuestionQueryEngine.from_defaults(
         query_engine_tools=build_tools(reference_date, brain_enabled),
-        llm=llama_llm(),
+        llm=llm,
+        question_gen=LLMQuestionGenerator.from_defaults(llm=llm),
         verbose=False,
     )
 
