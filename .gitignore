@@ -1,0 +1,141 @@
+# ---------------------------------------------------------------------------
+# Segredos e configuração local
+# ---------------------------------------------------------------------------
+# Chaves de API (OpenAI), credenciais de Postgres/Qdrant/Neo4j.
+# O repositório é público — nada disso pode ser versionado.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+develop-eggs/
+sdist/
+wheels/
+share/python-wheels/
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Ferramentas de teste e lint
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# ---------------------------------------------------------------------------
+# Dados ingeridos (regra de procedência — seção 2.4)
+# ---------------------------------------------------------------------------
+# Arquivos baixados das fontes públicas NÃO entram no Git: eles são
+# reconstituíveis pelo pipeline de coleta a partir da URL de origem.
+# O manifesto (URL, data, tamanho, hash SHA-256) é versionado — é ele que
+# torna a procedência verificável, não o binário.
+#
+# Nota: ignoramos o CONTEÚDO (data/raw/*) e não o diretório (data/raw/).
+# O Git não entra em diretório excluído, e uma negação para um arquivo
+# lá dentro nunca seria aplicada — o manifesto ficaria de fora.
+data/raw/*
+data/interim/*
+data/processed/*
+data/external/*
+*.xlsx
+*.xls
+*.csv
+!**/manifest*.json
+!**/manifest*.csv
+!tests/**/fixtures/**
+
+# ---------------------------------------------------------------------------
+# Volumes e artefatos dos serviços (Docker Compose)
+# ---------------------------------------------------------------------------
+volumes/
+qdrant_storage/
+neo4j/data/
+neo4j/logs/
+neo4j/import/
+neo4j/plugins/
+pgdata/
+postgres_data/
+docker-compose.override.yml
+
+# ---------------------------------------------------------------------------
+# Índices, embeddings e cache de modelos
+# ---------------------------------------------------------------------------
+storage/
+.llama_index/
+*.faiss
+*.duckdb
+.cache/
+.huggingface/
+
+# ---------------------------------------------------------------------------
+# Avaliação
+# ---------------------------------------------------------------------------
+# O gold set é versionado (é a referência). As saídas das rodadas, não.
+eval/runs/
+eval/reports/
+eval/*.jsonl
+!eval/gold_set*.json
+!eval/gold_set*.jsonl
+
+# ---------------------------------------------------------------------------
+# Node / TypeScript (interface de consulta — fase v3)
+# ---------------------------------------------------------------------------
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Notebooks
+# ---------------------------------------------------------------------------
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------------------
+# Editores e sistema operacional
+# ---------------------------------------------------------------------------
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------------------------------------
+# Logs
+# ---------------------------------------------------------------------------
+logs/
+*.log
