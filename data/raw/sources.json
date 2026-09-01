@@ -1,0 +1,62 @@
+{
+  "_comment": "Fontes públicas do ISP-RPPS. Verificadas em 2026-09-01 via HTTP Range (206 + content-type correto). Este arquivo é versionado; os arquivos baixados a partir dele não são (R1).",
+  "_pagina_oficial": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria",
+  "_nota_user_agent": "O portal gov.br responde 403 a User-Agent padrão de cliente HTTP. O fetcher DEVE enviar um User-Agent de navegador; sem isso todo download falha.",
+  "_nota_metodologia": "A edição 2025 teve reformulação de metodologia e, segundo o próprio Ministério, seus resultados NÃO são comparáveis aos das edições anteriores. Isso é material da pergunta de demonstração (spec 3.4), não um defeito dos dados.",
+
+  "edicoes": {
+    "2025": {
+      "resultado_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/resultado-final-isp-2025-_-publicado-em-04_12_2025-1.xlsx",
+      "relatorio_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/relatorio-do-indicador-de-situacao-previdenciaria-isp-2025_publicado-em-04_12_2025.pdf",
+      "relatorio_tecnico_002": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/rt_diaq_002_2025_dm-088343_isp.pdf",
+      "relatorio_tecnico_013": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/rt_diaq_013_2025_dm-206416_isp.pdf"
+    },
+    "2024": {
+      "resultado_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/ISP_2024_resultado_final_Revisado_29_11_2024.xlsx",
+      "relatorio_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indice-de-situacao-previdenciaria/arquivos/ISP_2024_Relatrio_ndice_de_Situao_Previdenciria_Revisado_29_11_2024.pdf"
+    },
+    "2023": {
+      "resultado_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/documentos/ISP_2023_Resultado_Final.xlsx",
+      "relatorio_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/documentos/ISP_2023_Relatorio_indice_de_Situcao_Previdenciaria.pdf"
+    },
+    "2022": {
+      "resultado_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/ISP_2022Relatrio_do_Indicador_de_Situao_Previdenciria.xlsx",
+      "relatorio_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/ISP_2022Relatrio_do_Indicador_de_Situao_Previdenciria.pdf"
+    },
+    "2021": {
+      "resultado_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/ISP2021ResultadoFinalConsolidado20211209.xlsx",
+      "relatorio_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/ISP2021RelatriodoIndicadordeSituaoPrevidenciria20211209.pdf"
+    },
+    "2020": {
+      "_nota": "Edição reeditada em 16/12/2020; estas são as URLs da reedição, que substituem as de 30/09 e 05/10.",
+      "resultado_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/arquivos/2020/ISP2020PLANILHADERESULTADOSREEDIO20201216.xlsx",
+      "relatorio_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/arquivos/2020/IndicadordeSituaoPrevidenciriaISP2020REEDIO20201216.pdf"
+    },
+    "2019": {
+      "resultado_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/arquivos/2020/isp-rpps-2019-11-08-2020-resultado-final-individualizado-e-memoria-de-calculo-sem-bloqueio.xlsx",
+      "relatorio_final": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/arquivos/2020/indicador-de-situacao-previdenciaria-isp-2019-20200729.pdf"
+    },
+    "2018": {
+      "_nota": "Edição 2018.01. Formato antigo, hospedado sob /outros/imagens/.",
+      "resultado_final": "https://www.gov.br/previdencia/pt-br/outros/imagens/2018/06/RESULTADO-ISP-2018.01.xlsx",
+      "apresentacao": "https://www.gov.br/previdencia/pt-br/outros/imagens/2018/06/2018-06-18-ISP-RPPS-2018-01-APRESENTACAO-VERSAO-FINAL.pdf"
+    },
+    "2017": {
+      "_nota": "Primeira edição. Sem planilha de resultado individualizado nas mesmas condições das demais — a nota técnica e a portaria são a base metodológica do índice.",
+      "nota_tecnica": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/arquivos/2017/nota-tecnica-sei-no-1-2017-codae-cgaci-srpps-sprev-mf-de-06-de-setembro-de-2017.pdf",
+      "portaria_sprev_10_2017": "https://www.gov.br/previdencia/pt-br/assuntos/rpps/indicador-de-situacao-previdenciaria/arquivos/2017/portaria-sprev-mf-no-10-2017-de-08-de-setembro-de-2017.pdf"
+    }
+  },
+
+  "legislacao": {
+    "_status": "TODO — não verificadas nesta rodada. Ver prompts/T03-coleta.md.",
+    "_onde_buscar": "planalto.gov.br (preferir HTML estruturado ao PDF, conforme spec 9) e in.gov.br",
+    "portaria_mtp_1467_2022": null,
+    "lei_9717_1998": null,
+    "lei_10887_2004": null,
+    "ec_20_1998": null,
+    "ec_41_2003": null,
+    "ec_47_2005": null,
+    "ec_103_2019": null
+  }
+}

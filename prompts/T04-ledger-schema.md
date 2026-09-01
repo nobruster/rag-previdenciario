@@ -116,6 +116,22 @@ As planilhas mudam de formato entre edições (risco conhecido, spec §9). Por i
 o COLUMN_MAP explícito por ano: adicionar uma edição é adicionar uma entrada, e
 uma edição não mapeada falha alto em vez de carregar lixo.
 
+⚠️ RUPTURA METODOLÓGICA EM 2025. O Ministério declara que a edição 2025 passou
+por reformulação e que **seus resultados não são comparáveis com os das edições
+anteriores**. Consequências:
+
+  - Grave isso em edicao.metodologia_ref (ex.: "reformulada em 2025 — não
+    comparável a edições anteriores")
+  - Uma pergunta de comparação que cruze a fronteira 2024↔2025 precisa que o
+    sistema AVISE da ruptura, em vez de apresentar o delta como se fosse
+    evolução de desempenho
+  - Não force um COLUMN_MAP comum entre 2025 e os anos anteriores; são
+    estruturas diferentes por decisão da fonte
+
+Isso não é defeito do dado — é exatamente a "metodologia versionada" que a spec
+§1.2 aponta como uma das três propriedades que justificam o domínio, e é o
+material da pergunta de demonstração (§3.4).
+
 ### 3. src/isp_rag/ledger/verify.py
 
 Esta é a checagem de qualidade da spec §2.4 — quase nenhum projeto de portfólio

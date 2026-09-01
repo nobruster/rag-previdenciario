@@ -85,27 +85,53 @@ task futura precisar de um arquivo, ela chama fetch() — não copia.
 
 ### 3. src/isp_rag/ingestion/sources.py
 
-  Constantes com as URLs públicas.
+  As URLs do ISP JÁ ESTÃO LEVANTADAS E VERIFICADAS em data/raw/sources.json —
+  9 edições (2017–2025), 20 arquivos, todas conferidas por requisição HTTP com
+  content-type e magic bytes corretos.
 
-  ISP_BASE = "https://www.gov.br/previdencia/..."   # TODO
+  NÃO redigite as URLs no código. Carregue do JSON:
 
-  ISP_SOURCES: dict[int, list[str]] = {
-      2025: [...],   # TODO: planilha individualizada, consolidada, relatório
-      2024: [...],
-      # ... 2017
-  }
+    SOURCES_FILE = Path("data/raw/sources.json")
 
-  LEGISLACAO_SOURCES: list[str] = [
-      # TODO: Portaria MTP 1.467/2022, Leis 9.717/1998 e 10.887/2004,
-      #       ECs 20/1998, 41/2003, 47/2005, 103/2019
-  ]
+    def load_sources() -> dict:
+        """Lê data/raw/sources.json. É a fonte única das URLs — versionada
+        junto do código, para a procedência ser auditável (R1)."""
 
-  ⚠️ NÃO INVENTE URLs. Deixe os TODO explícitos e uma docstring dizendo onde
-  encontrá-las (página de Divulgação de Resultados do ISP em gov.br/previdencia).
+    def isp_urls(ano: int) -> dict[str, str]:
+        """URLs de uma edição. KeyError com os anos disponíveis se não existir."""
+
+    def legislacao_urls() -> dict[str, str]:
+        """URLs da legislação. Levanta erro claro enquanto estiverem null —
+        são o TODO restante (ver abaixo)."""
+
+  ⚠️ As URLs de LEGISLAÇÃO ainda são null no JSON. NÃO as invente. Preencher
+  exige buscar em planalto.gov.br — e a spec §9 recomenda preferir HTML
+  estruturado ao PDF, então avalie o HTML do Planalto antes de baixar PDF.
   Uma URL fabricada viola R1 na primeira execução e é pior que um TODO honesto.
 
-  Adicione uma função validate_sources() que verifica se ainda há TODO pendente
-  e falha com mensagem clara, para o CLI não rodar com lista vazia em silêncio.
+  validate_sources() falha com mensagem clara se algo estiver null, para o CLI
+  não rodar com lista vazia em silêncio.
+
+### 3b. User-Agent obrigatório (descoberto na verificação)
+
+  O portal gov.br responde **403 Forbidden** a User-Agent padrão de cliente HTTP.
+  Verificado: com o UA do httpx todos os 20 arquivos dão 403; com UA de
+  navegador, todos dão 200/206 com o content-type correto.
+
+  Portanto o fetcher DEVE enviar, em toda requisição:
+
+    HEADERS = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+        ),
+        "Accept": "*/*",
+        "Accept-Language": "pt-BR,pt;q=0.9",
+    }
+
+  Sem isso, TODO download falha. Trate 403 como erro não-recuperável por retry
+  (não adianta tentar de novo com o mesmo UA) e com mensagem apontando para esta
+  causa provável.
 
 ### 4. CLI
 
@@ -150,9 +176,14 @@ python -m isp_rag.ingestion.fetch_isp --year 2025   # requer URLs preenchidas
 - [ ] SHA-256 calculado em streaming, não com o arquivo em memória
 - [ ] Segunda execução não rebaixa o que já tem o mesmo hash
 - [ ] `data/raw/manifest.json` versionado; os arquivos baixados, não
-- [ ] `sources.py` tem TODOs honestos, **nenhuma URL inventada**
+- [ ] `sources.py` carrega de `data/raw/sources.json`, sem redigitar URLs
+- [ ] **User-Agent de navegador em toda requisição** — sem ele, 403 em tudo
+- [ ] URLs de legislação continuam `null`, **nenhuma inventada**
 - [ ] Download interrompido não deixa arquivo parcial válido
 
-> **Nota:** as URLs reais precisam ser preenchidas por você a partir da página do
-> ISP em gov.br/previdencia. O agente não deve inventá-las — é exatamente o tipo
-> de fabricação que R1 existe para impedir.
+> **URLs do ISP: já levantadas e verificadas** em
+> [data/raw/sources.json](../data/raw/sources.json) — 9 edições (2017–2025),
+> 20 arquivos, cada um conferido por requisição real (status, content-type e
+> magic bytes). Falta apenas a legislação (Portaria 1.467/2022, leis e ECs),
+> que continua `null` de propósito: preencher exige buscar no Planalto, e a
+> spec §9 pede avaliar o HTML estruturado antes de recorrer a PDF.
