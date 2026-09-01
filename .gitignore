@@ -102,6 +102,7 @@ storage/
 # O gold set é versionado (é a referência). As saídas das rodadas, não.
 eval/runs/
 eval/reports/
+eval/validacao/resultados/
 eval/*.jsonl
 !eval/gold_set*.json
 !eval/gold_set*.jsonl

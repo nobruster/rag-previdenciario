@@ -159,6 +159,23 @@ def checar_regimes(resultset: list[tuple], sql: str = "", dsn: str | None = None
             if isinstance(valor, int) and not isinstance(valor, bool) and 2017 <= valor <= 2099:
                 anos.add(valor)
     anos |= {int(a) for a in ANO_RE.findall(sql or "")}
+
+    if len(anos) == 1:
+        # Uma edição só, mas o SQL pediu a série inteira (sem filtro de ano):
+        # a pergunta é de trajetória e o dado não a sustenta. Sem este aviso o
+        # modelo afirma "recuperou o patamar" sobre um único ponto — observado
+        # na validação de setembro/2026.
+        pediu_serie = bool(sql) and not ANO_RE.search(sql)
+        if pediu_serie:
+            return (
+                "ATENÇÃO: há apenas uma edição carregada no sistema "
+                f"({next(iter(anos))}). Não é possível afirmar evolução, "
+                "trajetória, melhora ou piora — informe o resultado dessa "
+                "edição e diga explicitamente que não há série histórica "
+                "carregada para comparar."
+            )
+        return None
+
     if len(anos) < 2:
         return None
 
