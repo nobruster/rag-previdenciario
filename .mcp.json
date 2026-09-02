@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "isp-rag": {
+      "type": "stdio",
+      "command": "C:\\Users\\nobru\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "args": [
+        "-m",
+        "isp_rag.mcp.server"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\nobru\\Documents\\rag-previdenciario\\src"
+      },
+      "cwd": "C:\\Users\\nobru\\Documents\\rag-previdenciario"
+    }
+  }
+}

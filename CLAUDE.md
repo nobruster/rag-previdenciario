@@ -79,3 +79,46 @@ quebra de uma delas, **a task está errada** — pare e reformule.
 
 Docker local até FastAPI + MCP (T01–T13). Fora: SICONFI (v1.5), cadeia
 normativa completa no grafo (v2+), UI TypeScript (v3), deploy gerenciado.
+
+## Estado conhecido
+
+O que está carregado hoje, para não confundir lacuna de dado com bug:
+
+- **Ledger**: só a edição **2025** (2.133 entes, regime `corte-historico`).
+  Pergunta sobre 2017–2024 não tem resposta — a tool devolve
+  `ente_nao_encontrado`, e isso é R3 funcionando.
+- **Memory**: só o corpus **normativo** — Portaria MTP 1.467/2022, Leis
+  9.717/1998 e 10.887/2004, Emendas. Os relatórios técnicos do ISP
+  (`rt_diaq_002_2025`, `rt_diaq_013_2025`, relatório 2025) estão baixados em
+  `data/raw/` mas **não indexados**.
+
+A consequência é uma lacuna estrutural: o sistema tem a **norma** e tem o
+**resultado**, e não tem a **metodologia** que liga um ao outro. Perguntas do
+tipo "o que mede o indicador X" ou "quais os cortes de cada letra" não têm base
+no corpus. A Portaria art. 238 delega a metodologia à SPREV, que a publica à
+parte. Indexar aqueles três PDFs fecha isso — mas chunk por artigo (spec §5.2)
+não serve para relatório técnico, que não tem artigos; precisa de estratégia
+por seção.
+
+## Falhas conhecidas
+
+Achadas exercitando o sistema pelo MCP. Todas reproduzidas. Candidatas ao gold
+set em `eval/` — nenhuma corrigida ainda.
+
+| # | Falha |
+|---|---|
+| **F1** | **Text-to-SQL fabrica recorte para casar com a pergunta.** "Quais os 3 indicadores novos do ISP-2025" → gera `SELECT DISTINCT indicador ... ORDER BY indicador LIMIT 3` e apresenta as 3 primeiras em ordem alfabética como se fossem as novas. `refused: false`. O Ledger não tem coluna que marque indicador novo, e sem 2024 carregado não há diff possível — a pergunta é irrespondível e deveria ser recusada. É a falha mais perigosa do componente: o SQL executa sem erro e o resultado parece plausível. |
+| **F2** | **Roteamento manda pergunta de metodologia para o Ledger.** A mesma pergunta de F1 é sobre metodologia (Memory), não sobre fato numérico. O roteador escolheu `ledger` e o sintetizador aceitou. |
+| **F3** | **`verificar_cobertura` falha com sinônimo e nome por extenso.** `"ISP"` → coberto, 12 chunks. `"Indicador de Situação Previdenciária"` → ausente, 0. `"suficiencia financeira"` → ausente, 0, mesmo com o conceito presente nos arts. 7º e 61. Busca literal, sem expansão de sigla nem normalização. Um agente conclui "não coberto" e desiste de pergunta respondível. |
+| **F4** | **Sinal de fabricação existe mas não bloqueia.** O sintetizador loga `WARNING: resposta sem citação no corpo` exatamente nos casos de F1 — e devolve a resposta assim mesmo. O gancho para transformar F1 em recusa já está lá. |
+
+Ao mexer nesses pontos: R3 é o critério. Recusa é resposta correta, não
+degradação de qualidade.
+
+## Registro MCP
+
+`.mcp.json` está no repo com caminhos **absolutos da máquina do Bruno** —
+`command` (python.exe), `cwd` e `PYTHONPATH`. Em outra máquina, ajuste os três.
+`claude mcp add` não tem flag `--cwd`, e sem `cwd` absoluto o servidor sobe do
+diretório errado e não acha o pacote. Servidor de escopo project exige aprovação
+interativa (`claude`) antes de as tools ficarem chamáveis.
