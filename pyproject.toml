@@ -30,6 +30,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+demo = [
+    "streamlit",
+]
 dev = [
     "pytest",
     "pytest-cov",

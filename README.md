@@ -44,6 +44,22 @@ Todo arquivo entra no sistema por download automatizado a partir da URL pública
 
 📄 **[Especificação completa do projeto](docs/projeto-isp-rag.md)** — arquitetura, ingestão, chunking, ontologia, camada de avaliação, fases, riscos e custos.
 
+## Demo local (Streamlit)
+
+```bash
+docker compose up -d
+streamlit run demo/app.py
+```
+
+Tela para experimentar o sistema: mostra a resposta com as fontes citadas, qual
+engine foi acionada, a recusa quando não há base, e uma checagem de cobertura do
+corpus na barra lateral.
+
+É **demonstração, não a interface do produto** — a spec §8 fixa UI em TypeScript
+na fase v3. O Streamlit existe porque boa parte do que o sistema faz de
+interessante (fonte citada, recusa honesta, ressalva de comparabilidade) só
+aparece bem numa tela.
+
 ## Uso como ferramenta de agente (MCP)
 
 O sistema se expõe como servidor MCP, com cinco tools. Registre no seu cliente:
