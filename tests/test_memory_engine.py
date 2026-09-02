@@ -151,11 +151,23 @@ def test_revogado_fora_por_padrao():
 @pytest.mark.llm
 @precisa_qdrant
 def test_reindexar_nao_duplica():
+    """O invariante é a IDEMPOTÊNCIA, não a contagem absoluta.
+
+    A versão anterior assertava `depois == antes + 1`, o que só valia na
+    primeira execução: como o id do ponto é estável de propósito, numa segunda
+    rodada o chunk já existe e o total não sobe. O teste falhava por ter rodado
+    antes — media o estado da coleção, não o comportamento.
+    """
+    import uuid
+
     from isp_rag.memory.indexer import index_chunks
 
+    unico = _chunk(text_raw=f"chunk de teste idempotência {uuid.uuid4()}")
+
     antes = contar_pontos()
-    index_chunks([_chunk(text_raw="chunk de teste idempotência")])
-    depois = contar_pontos()
-    index_chunks([_chunk(text_raw="chunk de teste idempotência")])
-    assert contar_pontos() == depois
-    assert depois == antes + 1
+    index_chunks([unico])
+    depois_primeira = contar_pontos()
+    assert depois_primeira == antes + 1, "chunk novo precisa entrar"
+
+    index_chunks([unico])
+    assert contar_pontos() == depois_primeira, "reindexar o mesmo não pode duplicar"

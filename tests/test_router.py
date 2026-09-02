@@ -25,10 +25,15 @@ MEMORY = [
     "quais os requisitos para emissão do CRP",
 ]
 BRAIN = [
-    "que critério do ISP mudou entre 2023 e 2025",
     "qual norma alterou o cálculo do indicador de cobertura",
     "quais indicadores compõem a dimensão atuária",
 ]
+
+# Pergunta de grafo que TAMBÉM cruza metodologia com edição. A regra
+# _METODOLOGIA (T11) a classifica como multi-domínio antes de escolher engine —
+# e está certa: responder "que critério mudou entre 2023 e 2025" exige o Ledger
+# para o dado e o Memory para a norma, não só o grafo.
+BRAIN_MULTI = "que critério do ISP mudou entre 2023 e 2025"
 
 
 # ---------------------------------------------------------------------------
@@ -76,6 +81,14 @@ def test_roteia_para_ledger(pergunta):
 @pytest.mark.parametrize("pergunta", MEMORY)
 def test_roteia_para_memory(pergunta):
     assert route(pergunta).engine == "memory"
+
+
+@pytest.mark.llm
+def test_pergunta_de_grafo_que_cruza_edicao_e_multi_dominio():
+    """Sem isso, a pergunta iria só para o grafo e perderia o dado e a norma."""
+    d = route(BRAIN_MULTI, brain_enabled=True)
+    assert d.is_multi_domain
+    assert d.engine is None
 
 
 @pytest.mark.llm
